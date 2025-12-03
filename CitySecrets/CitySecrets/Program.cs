@@ -13,6 +13,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 app.UseHttpsRedirection();
 
