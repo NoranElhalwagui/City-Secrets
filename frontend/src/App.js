@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
-import cityBack from './backg.jpg';
-import cairoImg from './cairo.jpg';
-import gizaImg from './giza.jpg';
+import cityBack from './assets/backg.jpg';
+import cairoImg from './assets/cairo.jpg';
+import gizaImg from './assets/giza.jpg';
 import './App.css';
 
 function App() {
