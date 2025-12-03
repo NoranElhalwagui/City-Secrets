@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 
 
-namespace TempBackend.Models
+namespace CitySecrets.Models
 {
     
     public class Category

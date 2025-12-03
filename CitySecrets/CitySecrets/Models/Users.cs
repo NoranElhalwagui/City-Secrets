@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TempBackend.Models{
+namespace CitySecrets.Models{
     public class User
     {
         [Key]
