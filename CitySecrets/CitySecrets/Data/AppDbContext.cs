@@ -1,3 +1,4 @@
+using CitySecrets.Models;
 using Microsoft.EntityFrameworkCore;
 
 public class AppDbContext : DbContext
