@@ -1,24 +1,13 @@
-<<<<<<< HEAD
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-=======
-using CitySecrets.Models;
+﻿using CitySecrets.Models;
 using CitySecrets.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
->>>>>>> fc19813511c6f6f25e796a33a97d1103930f9b11
 
 namespace CitySecrets.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-<<<<<<< HEAD
-    public class PlaceController : ControllerBase
-    {
-    }
-}
-=======
     public class PlacesController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -149,4 +138,3 @@ namespace CitySecrets.Controllers
         }
     }
 }
->>>>>>> fc19813511c6f6f25e796a33a97d1103930f9b11

@@ -1,17 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-<<<<<<< HEAD
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-=======
-using CitySecrets.Data;
-
-var builder = WebApplication.CreateBuilder(args);
-
->>>>>>> fc19813511c6f6f25e796a33a97d1103930f9b11
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -35,11 +28,10 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-<<<<<<< HEAD
-=======
 app.UseCors("AllowFrontend");
->>>>>>> fc19813511c6f6f25e796a33a97d1103930f9b11
 
 app.UseHttpsRedirection();
 
@@ -47,7 +39,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
 
 
 // Find this section in your Program.cs:

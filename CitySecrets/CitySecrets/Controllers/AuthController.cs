@@ -1,8 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using CitySecrets.Models;
-using CitySecrets.Data;
-using System.Linq;
-
 namespace CitySecrets.Controllers
 {
     [ApiController]
