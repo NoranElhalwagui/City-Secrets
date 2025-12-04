@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CitySecrets.Models;
-using CitySecrets.Data;
 
 namespace CitySecrets.Services
 {
@@ -23,7 +22,7 @@ namespace CitySecrets.Services
                 place.IsVerified = true;
                 place.CreatedAt = DateTime.UtcNow;
 
-                _context.Places.Add(place);
+            _context.Place.Add(place);
                 _context.SaveChanges();
 
                 LogAction(1, "CREATE", "Place", place.PlaceId, $"Created place: {place.Name}");
@@ -33,7 +32,7 @@ namespace CitySecrets.Services
 
             public Place? UpdatePlace(int placeId, Place updatedPlace)
             {
-                var place = _context.Places.Find(placeId);
+                var place = _context.Place.Find(placeId);
                 if (place == null || place.IsDeleted)
                     return null;
 
@@ -62,13 +61,13 @@ namespace CitySecrets.Services
 
             public bool DeletePlace(int placeId, bool hardDelete = false)
             {
-                var place = _context.Places.Find(placeId);
+                var place = _context.Place.Find(placeId);
                 if (place == null)
                     return false;
 
                 if (hardDelete)
                 {
-                    _context.Places.Remove(place);
+                    _context.Place.Remove(place);
                     LogAction(1, "HARD_DELETE", "Place", placeId, $"Permanently deleted place: {place.Name}");
                 }
                 else
@@ -85,7 +84,7 @@ namespace CitySecrets.Services
 
             public bool RestorePlace(int placeId)
             {
-                var place = _context.Places.Find(placeId);
+                var place = _context.Place.Find(placeId);
                 if (place == null)
                     return false;
 
@@ -102,7 +101,7 @@ namespace CitySecrets.Services
 
             public bool SetHiddenGemStatus(int placeId, bool isHiddenGem, int hiddenGemScore)
             {
-                var place = _context.Places.Find(placeId);
+                var place = _context.Place.Find(placeId);
                 if (place == null || place.IsDeleted)
                     return false;
 
@@ -121,14 +120,14 @@ namespace CitySecrets.Services
             public List<Place> GetAllPlaces(bool includeDeleted = false)
             {
                 if (includeDeleted)
-                    return _context.Places.ToList();
+                    return _context.Place.ToList();
 
-                return _context.Places.Where(p => !p.IsDeleted).ToList();
+                return _context.Place.Where(p => !p.IsDeleted).ToList();
             }
 
             public Place? GetPlaceById(int placeId)
             {
-                return _context.Places.Find(placeId);
+                return _context.Place.Find(placeId);
             }
 
             // ============ CATEGORY MANAGEMENT ============
@@ -170,7 +169,7 @@ namespace CitySecrets.Services
                 if (category == null)
                     return false;
 
-                var placesCount = _context.Places
+                var placesCount = _context.Place
                     .Count(p => p.CategoryId == categoryId && !p.IsDeleted);
 
                 if (placesCount > 0)
@@ -346,10 +345,10 @@ namespace CitySecrets.Services
             {
                 return new
                 {
-                    TotalPlaces = _context.Places.Count(),
-                    ActivePlaces = _context.Places.Count(p => p.IsActive && !p.IsDeleted),
-                    DeletedPlaces = _context.Places.Count(p => p.IsDeleted),
-                    HiddenGems = _context.Places.Count(p => p.IsHiddenGem && !p.IsDeleted),
+                    TotalPlaces = _context.Place.Count(),
+                    ActivePlaces = _context.Place.Count(p => p.IsActive && !p.IsDeleted),
+                    DeletedPlaces = _context.Place.Count(p => p.IsDeleted),
+                    HiddenGems = _context.Place.Count(p => p.IsHiddenGem && !p.IsDeleted),
 
                     TotalUsers = _context.Users.Count(),
                     ActiveUsers = _context.Users.Count(u => u.IsActive && !u.IsDeleted),
