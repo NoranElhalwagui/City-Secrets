@@ -7,6 +7,7 @@ import Sidebar from "../components/Sidebar";
 
 export default function HomePage({ setPage }) {
   return (
+    
     <div className="home-container">
     <Sidebar setPage={setPage} />
 
