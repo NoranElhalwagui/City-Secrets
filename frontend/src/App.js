@@ -4,9 +4,7 @@ import cityBack from './assets/backg.jpg';
 import cairoImg from './assets/cairo.jpg';
 import gizaImg from './assets/giza.jpg';
 import './App.css'; 
-import { useNavigate } from "react-router-dom";
-
-
+import Sidebar from "./components/Sidebar";
 
 function App() {
 
@@ -84,11 +82,6 @@ function App() {
     return (
       <div className="App">
         <HomePage setPage={setPage} />
-
-        {/* GO BACK BUTTON (Home → optional) */}
-        <div className="top-buttons">
-          <button className="option-button" onClick={() => setPage('landing')}>Go Back</button>
-        </div>
       </div>
     );
   }
@@ -97,25 +90,25 @@ function App() {
   if (page === 'landing') {
     return (
       <div className="App">
+        <Sidebar setPage={setPage} />
         <section className="hero">
           <div className="background-blur" style={{ backgroundImage: `url(${cityBack})` }}></div>
           <div className="background-overlay"></div>
 
           <header className="hero-header">
+           <div className="top-buttons">
+            <button className="option-button" onClick={() => setPage('myHome')}>Go Back</button>
+          </div>
 
-            {/* GO BACK BUTTON */}
-            <div className="top-buttons">
-              <button className="option-button" onClick={() => setPage('myHome')}>Go Back</button>
-            </div>
+          <h1>Welcome to City Secrets</h1>
+           <p>Are you an Adventurer or a Hidden Gem Owner?</p>
 
-            <h1>Welcome to City Secrets</h1>
-            <p>Are you an Adventurer or a Hidden Gem Owner?</p>
-
-            <div className="button-container">
-              <button className="option-button" onClick={() => setPage('explorer')}>Adventurer</button>
-              <button className="option-button" onClick={() => setPage('ownerForm')}>Hidden Gem Owner</button>
-            </div>
+          <div className="button-container">
+            <button className="option-button" onClick={() => setPage('explorer')}>Adventurer</button>
+            <button className="option-button" onClick={() => setPage('ownerForm')}>Hidden Gem Owner</button>
+          </div>
           </header>
+
         </section>
       </div>
     );
@@ -125,6 +118,7 @@ function App() {
   if (page === 'ownerForm') {
     return (
       <div className="App">
+        <Sidebar setPage={setPage} />
         <section className="city-section">
           <div className="top-buttons">
             <button className="option-button" onClick={() => setPage('landing')}>Go Back</button>
@@ -161,6 +155,8 @@ function App() {
   // ------------------- Explorer Page -------------------
   return (
     <div className="App">
+
+      <Sidebar setPage={setPage} />
 
       <section className="hero">
         <div className="background-blur" style={{ backgroundImage: `url(${cityBack})` }}></div>
