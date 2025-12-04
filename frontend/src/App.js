@@ -48,7 +48,7 @@ function App() {
     if (ref.current) ref.current.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleAddGem = (e) => {
+  const handleAddGem = async (e) => {
     e.preventDefault();
     const form = e.target;
     const newGem = {
@@ -58,10 +58,39 @@ function App() {
       description: form.description.value,
       images: Array.from(form.images.files),
     };
-    setHiddenGems([...hiddenGems, newGem]);
-    setPage('explorer');
-    setActiveCity(newGem.city.toLowerCase());
-    setPreviewImages([]);
+
+    // Prepare data for API
+    const placeData = {
+      name: form.name.value,
+      description: form.description.value,
+      address: form.location.value,
+      latitude: form.city.value === "Cairo" ? 30.0444 : 30.0131, // Default coordinates for Cairo/Giza
+      longitude: form.city.value === "Cairo" ? 31.2357 : 31.2089,
+      averagePrice: 0, // Default price, can be updated later
+      categoryId: 1 // Default category, should be selected from form in future
+    };
+
+    try {
+      // Send to API
+      const response = await fetch("https://localhost:7164/api/places", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(placeData)
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit place");
+      }
+
+      // Add to local state on success
+      setHiddenGems([...hiddenGems, newGem]);
+      setPage('explorer');
+      setActiveCity(newGem.city.toLowerCase());
+      setPreviewImages([]);
+    } catch (error) {
+      console.error("Error submitting place:", error);
+      alert("Failed to submit place. Please try again.");
+    }
   };
 
   const handleImagePreview = (e) => {
@@ -72,6 +101,124 @@ function App() {
     const newGems = [...hiddenGems];
     newGems.splice(index, 1);
     setHiddenGems(newGems);
+  };
+
+  // ------------------- Admin Functions -------------------
+  const handleAdminCreatePlace = async (placeData) => {
+    try {
+      const response = await fetch("https://localhost:7164/api/admin/places", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: placeData.name,
+          description: placeData.description,
+          address: placeData.address,
+          latitude: placeData.latitude,
+          longitude: placeData.longitude,
+          averagePrice: placeData.averagePrice || 0,
+          categoryId: placeData.categoryId || 1
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create place");
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error("Error creating place as admin:", error);
+      throw error;
+    }
+  };
+
+  const handleAdminUpdatePlace = async (placeId, placeData) => {
+    try {
+      const response = await fetch(`https://localhost:7164/api/admin/places/${placeId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: placeData.name,
+          description: placeData.description,
+          address: placeData.address,
+          latitude: placeData.latitude,
+          longitude: placeData.longitude,
+          averagePrice: placeData.averagePrice || 0,
+          categoryId: placeData.categoryId || 1
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update place");
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error("Error updating place as admin:", error);
+      throw error;
+    }
+  };
+
+  const handleAdminDeletePlace = async (placeId, hardDelete = false) => {
+    try {
+      const response = await fetch(`https://localhost:7164/api/admin/places/${placeId}?hardDelete=${hardDelete}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete place");
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error("Error deleting place as admin:", error);
+      throw error;
+    }
+  };
+
+  const handleAdminGetAllPlaces = async (includeDeleted = false) => {
+    try {
+      const response = await fetch(`https://localhost:7164/api/admin/places?includeDeleted=${includeDeleted}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch places");
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error("Error fetching places as admin:", error);
+      throw error;
+    }
+  };
+
+  const handleAdminSetHiddenGem = async (placeId, isHiddenGem, score) => {
+    try {
+      const response = await fetch(`https://localhost:7164/api/admin/places/${placeId}/hidden-gem`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isHiddenGem: isHiddenGem,
+          score: score
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to set hidden gem status");
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error("Error setting hidden gem status:", error);
+      throw error;
+    }
   };
 
   // ------------------- Landing Page -------------------
