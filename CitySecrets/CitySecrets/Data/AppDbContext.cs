@@ -1,3 +1,4 @@
+
 using CitySecrets.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,8 @@ public class AppDbContext : DbContext
     public DbSet<Review> Reviews { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Category> Categories { get; set; }
-    public DbSet<Favorite> Favourites{ get; set; }
+    public DbSet<Favorite> Favourites { get; set; }
+    public DbSet<AdminActionLog> AdminActionLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -22,3 +24,4 @@ public class AppDbContext : DbContext
             .IsUnique();
     }
 }
+

@@ -1,38 +1,174 @@
+:root {
+  --blur-level: 8px;
+}
+
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  font-family: Arial, sans-serif;
+  scroll-behavior: smooth;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+html {
+  scroll-behavior: smooth;
+  background-color: #111;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.background-blur {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(var(--blur-level));
+  z-index: -2;
+}
+
+.background-overlay {
+  position: absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: -1;
+}
+
+.hero-header {
+  position: relative;
+  padding: 40px;
+  border-radius: 10px;
+  max-width: 90%;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.hero-header h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.hero-header p {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+}
+
+.button-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.city-button, .option-button {
+  cursor: pointer;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.city-button img {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.city-button span {
+  display: block;
+  margin-top: 5px;
+}
+
+.city-button:hover, .option-button:hover {
+  transform: scale(1.05);
+  background-color: #21a1f1;
+}
+
+.city-section {
+  padding: 60px 20px;
+  text-align: center;
+  background-color: #111;
+}
+
+.city-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.city-section p {
+  font-size: 1.2rem;
+  color: #eee;
+  margin-bottom: 30px;
+}
+
+.sub-section {
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto 30px auto;
+  text-align: left;
+  background-color: rgba(0,0,0,0.4);
+  border-radius: 10px;
+}
+
+.sub-section h3 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.sub-section p {
+  font-size: 1.1rem;
+  color: #fff;
+  line-height: 1.6;
+}
+
+.hidden-gem {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 10px;
+}
+
+.gem-images {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.gem-thumb {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid #fff;
+}
+
+.owner-form {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.owner-form input, .owner-form select, .owner-form textarea {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  font-size: 1rem;
+}
+
+.preview-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
