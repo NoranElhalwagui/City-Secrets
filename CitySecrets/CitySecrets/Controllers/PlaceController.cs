@@ -1,6 +1,8 @@
 ﻿using CitySecrets.Models;
+using CitySecrets.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace CitySecrets.Controllers
 {
