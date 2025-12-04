@@ -1,0 +1,76 @@
+/* ---- Container: fixed in top-right corner ---- */
+.dropdown-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* ---- Hamburger Button ---- */
+.dropdown-toggle {
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s ease;
+  font-size: 20px; /* larger hamburger icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown-toggle:hover {
+  background-color: #21a1f1;
+  transform: scale(1.05);
+}
+
+/* ---- Dropdown Menu Box ---- */
+.dropdown-menu {
+  margin-top: 10px;
+  background-color: rgba(0, 0, 0, 0.9); /* dark glass */
+  backdrop-filter: blur(6px);
+  border-radius: 10px;
+  width: 170px;
+  padding: 10px 0;
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  animation: fadeIn 0.25s ease;
+}
+
+/* show menu */
+.dropdown-menu.show {
+  display: flex;
+}
+
+/* ---- Individual Items ---- */
+.dropdown-item {
+  background: none;
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  text-align: left;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(33,161,241,0.5);
+  border-radius: 6px;
+}
+
+/* ---- Simple animation ---- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,14 +1,19 @@
 import { useRef, useState } from 'react';
+import HomePage from "./pages/HomePage";
 import cityBack from './assets/backg.jpg';
 import cairoImg from './assets/cairo.jpg';
 import gizaImg from './assets/giza.jpg';
-import './App.css';
+import './App.css'; 
+import Sidebar from "./components/Sidebar";
+
 
 function App() {
-  const [page, setPage] = useState('landing'); // landing, explorer, ownerForm
+  const [page, setPage] = useState('myHome'); // landing, explorer, ownerForm
   const [activeCity, setActiveCity] = useState(null);
   const [hiddenGems, setHiddenGems] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
+ 
+
 
   // Refs for city sections
   const cairoSectionRef = useRef(null);
@@ -75,14 +80,24 @@ function App() {
   };
 
   // ------------------- Landing Page -------------------
+  if (page === 'myHome') {
+  return (
+    <div className="App">
+      <HomePage setPage={setPage} />
+    </div>
+  );
+}
+
+
   if (page === 'landing') {
     return (
       <div className="App">
+        <Sidebar setPage={setPage} />
         <section className="hero">
           <div className="background-blur" style={{ backgroundImage: `url(${cityBack})` }}></div>
           <div className="background-overlay"></div>
           <header className="hero-header">
-            <h1>Welcome to City Secrets</h1>
+            
             <p>Are you an Adventurer or a Hidden Gem Owner?</p>
             <div className="button-container">
               <button className="option-button" onClick={() => setPage('explorer')}>Adventurer</button>
@@ -98,6 +113,7 @@ function App() {
   if (page === 'ownerForm') {
     return (
       <div className="App">
+        <Sidebar setPage={setPage} />
         <section className="city-section">
           <div className="top-buttons">
             <button className="option-button" onClick={() => setPage('landing')}>Go Back</button>
@@ -130,6 +146,7 @@ function App() {
   // ------------------- Explorer Page -------------------
   return (
     <div className="App">
+      <Sidebar setPage={setPage} />
       <section className="hero">
         <div className="background-blur" style={{ backgroundImage: `url(${cityBack})` }}></div>
         <div className="background-overlay"></div>
