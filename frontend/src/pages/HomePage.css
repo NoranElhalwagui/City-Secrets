@@ -1,19 +1,16 @@
-.home-container {
-  position: relative;
+/* Import a chic, modern font */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+
+body, html, .home-container {
+  font-family: 'Playfair Display', serif;
+  margin: 0;
+  padding: 0;
   width: 100%;
   min-height: 100vh;
+  color: white;
 }
 
-
-.home-hero {
-  position: relative;
-  min-height: auto;
-  padding: 100px 20px; 
- 
-  text-align: center;
-}
-
-
+/* Blurred background */
 .home-background {
   position: fixed;
   top: 0;
@@ -22,7 +19,8 @@
   height: 100%;
   background-size: cover;
   background-position: center;
-  filter: blur(8px);
+  filter: blur(12px);
+  transform: scale(1.05);
   z-index: -2;
 }
 
@@ -32,81 +30,154 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.2);
   z-index: -1;
 }
 
+.home-title-top {
+  display: block;
+  text-align: center;
+  font-size: 5rem;
+  font-weight: 700;
+  color: #ffdd59;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+  margin-top: 20px;
 
+  /* Animation */
+  filter: blur(8px); /* start blurred */
+  animation: titleClear 3s ease-out forwards; /* 3s animation */
+}
+
+@keyframes titleClear {
+  0% {
+    filter: blur(8px);
+  }
+  100% {
+    filter: blur(0);
+  }
+}
+
+
+
+/* Split layout */
 .home-content {
   position: relative;
-  padding: 40px;
-  border-radius: 10px;
-  max-width: 90%;
-  background-color: rgba(0,0,0,0.4);
-}
-
-.home-title {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  color: white;
-}
-
-.home-subtitle {
-  font-size: 1.5rem;
-  margin-bottom: 30px;
-  color: #eee;
-}
-
-.home-button {
-  cursor: pointer;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  background-color: #333;
-  color: white;
-  font-size: 1.1rem;
-}
-
-.home-button:hover {
-  background-color: #008cff;
-  box-shadow: 0 0 12px #008cff;
-  transform: scale(1.05);
-}
-
-
-.home-button:hover {
-  transform: scale(1.05);
-  background-color: #21a1f1;
-}
-
-.home-sections {
-  margin-top: 80px;
+  margin-top: 150px; /* space below the title */
   display: flex;
-  flex-direction: column;
-  gap: 80px;
+  justify-content: center;
+  padding: 0 20px;
 }
 
-.home-section {
-  background-color: rgba(0,0,0,0.4);
-  padding: 40px;
-  border-radius: 10px;
-  max-width: 900px;
-  margin: auto;
-  color: white;
+.home-split {
+  display: flex;
+  gap: 50px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* Left side */
+.home-left {
+  flex: 1.5;
+  min-width: 300px;
+  text-align: left;
+}
+
+.home-left h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.home-left p, .home-left li {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.home-left ul {
+  padding-left: 20px;
+  margin-bottom: 20px;
+}
+
+/* Right side */
+.home-right {
+  flex: 1;
+  min-width: 250px;
+  text-align: center;
+}
+
+.home-right h2 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
 }
 
 .image-box img {
-  width: 280px;      
-  height: 180px;   
+  width: 90%;
+  height: 140px;
   object-fit: cover;
   border-radius: 12px;
-  margin-top: 20px;
+  margin-top: 10px;
   transition: transform 0.3s ease;
 }
 
-
 .image-box img:hover {
   transform: scale(1.05);
+}
+
+.image-caption {
+  margin-top: 5px;
+  font-size: 1rem;
+}
+
+.reviews-section {
+  margin-top: 20px;
+  font-size: 0.95rem;
+}
+
+.review-quote {
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+/* Button */
+.home-button {
+  cursor: pointer;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  background-color: #ffdd59;
+  color: #111;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+}
+
+.home-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #ffdd59;
+}
+
+/* Responsive */
+@media screen and (max-width: 900px) {
+  .home-split {
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+  }
+
+  .home-left, .home-right {
+    max-width: 90%;
+    text-align: center;
+  }
+
+  .image-box img {
+    width: 80%;
+    height: 130px;
+  }
+
+  .home-title-top {
+    font-size: 3.5rem;
+  }
 }

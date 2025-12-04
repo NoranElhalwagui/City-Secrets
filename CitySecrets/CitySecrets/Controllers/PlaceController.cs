@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using CitySecrets.Data;
 namespace CitySecrets.Controllers
 {
     [Route("api/[controller]")]
