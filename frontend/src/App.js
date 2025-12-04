@@ -6,14 +6,22 @@ import gizaImg from './assets/giza.jpg';
 import './App.css'; 
 import Sidebar from "./components/Sidebar";
 
-
 function App() {
-  const [page, setPage] = useState('myHome'); // landing, explorer, ownerForm
+  const [page, setPage] = useState('myHome'); // myHome, landing, explorer, ownerForm, adminLogin, adminPage
   const [activeCity, setActiveCity] = useState(null);
   const [hiddenGems, setHiddenGems] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
- 
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [admin, setAdmin] = useState(null);
+  const [editRequestIndex, setEditRequestIndex] = useState(null);
 
+  // Hardcoded admins
+  const admins = [
+    { id: "admin1", pass: "1234" },
+    { id: "admin2", pass: "2345" },
+    { id: "admin3", pass: "3456" },
+    { id: "admin4", pass: "4567" },
+  ];
 
   // Refs for city sections
   const cairoSectionRef = useRef(null);
@@ -42,6 +50,7 @@ function App() {
     { name: "Giza Garden Cafe", description: "Cozy garden seating and coffee." },
   ];
 
+  // ------------------- Handlers -------------------
   const handleCityClick = (city) => {
     setActiveCity(city);
     const ref = city === 'cairo' ? cairoSectionRef : gizaSectionRef;
@@ -53,7 +62,12 @@ function App() {
     if (ref.current) ref.current.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleAddGem = async (e) => {
+  const handleImagePreview = (e) => {
+    setPreviewImages(Array.from(e.target.files).map(file => URL.createObjectURL(file)));
+  };
+
+  // ------------------- Owner submits gem -------------------
+  const handleAddGemRequest = (e) => {
     e.preventDefault();
     const form = e.target;
     const newGem = {
@@ -64,231 +78,154 @@ function App() {
       images: Array.from(form.images.files),
     };
 
-    // Prepare data for API
-    const placeData = {
-      name: form.name.value,
-      description: form.description.value,
-      address: form.location.value,
-      latitude: form.city.value === "Cairo" ? 30.0444 : 30.0131, // Default coordinates for Cairo/Giza
-      longitude: form.city.value === "Cairo" ? 31.2357 : 31.2089,
-      averagePrice: 0, // Default price, can be updated later
-      categoryId: 1 // Default category, should be selected from form in future
-    };
-
-    try {
-      // Send to API
-      const response = await fetch("https://localhost:7164/api/places", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(placeData)
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to submit place");
-      }
-
-      // Add to local state on success
-      setHiddenGems([...hiddenGems, newGem]);
-      setPage('explorer');
-      setActiveCity(newGem.city.toLowerCase());
-      setPreviewImages([]);
-    } catch (error) {
-      console.error("Error submitting place:", error);
-      alert("Failed to submit place. Please try again.");
+    // If editing a request
+    if (editRequestIndex !== null) {
+      const updatedRequests = [...pendingRequests];
+      updatedRequests[editRequestIndex] = newGem;
+      setPendingRequests(updatedRequests);
+      setEditRequestIndex(null);
+      alert("Request updated successfully!");
+    } else {
+      setPendingRequests([...pendingRequests, newGem]);
+      alert("Your gem request has been sent to admin for approval!");
     }
+
+    setPage('landing');
+    setPreviewImages([]);
   };
 
-  const handleImagePreview = (e) => {
-    setPreviewImages(Array.from(e.target.files).map(file => URL.createObjectURL(file)));
+  // ------------------- Admin actions -------------------
+  const handleApproveRequest = (index) => {
+    const gem = pendingRequests[index];
+    setHiddenGems([...hiddenGems, gem]);
+    const newRequests = [...pendingRequests];
+    newRequests.splice(index, 1);
+    setPendingRequests(newRequests);
   };
 
-  const handleDeleteGem = (index) => {
-    const newGems = [...hiddenGems];
-    newGems.splice(index, 1);
-    setHiddenGems(newGems);
+  const handleDeleteRequest = (index) => {
+    const newRequests = [...pendingRequests];
+    newRequests.splice(index, 1);
+    setPendingRequests(newRequests);
   };
 
-  // ------------------- Admin Functions -------------------
-  const handleAdminCreatePlace = async (placeData) => {
-    try {
-      const response = await fetch("https://localhost:7164/api/admin/places", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: placeData.name,
-          description: placeData.description,
-          address: placeData.address,
-          latitude: placeData.latitude,
-          longitude: placeData.longitude,
-          averagePrice: placeData.averagePrice || 0,
-          categoryId: placeData.categoryId || 1
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create place");
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.error("Error creating place as admin:", error);
-      throw error;
-    }
+  const handleEditRequest = (index) => {
+    const request = pendingRequests[index];
+    setEditRequestIndex(index);
+    setPreviewImages(request.images.map(file => URL.createObjectURL(file)));
+    setPage('ownerForm');
   };
 
-  const handleAdminUpdatePlace = async (placeId, placeData) => {
-    try {
-      const response = await fetch(`https://localhost:7164/api/admin/places/${placeId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: placeData.name,
-          description: placeData.description,
-          address: placeData.address,
-          latitude: placeData.latitude,
-          longitude: placeData.longitude,
-          averagePrice: placeData.averagePrice || 0,
-          categoryId: placeData.categoryId || 1
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update place");
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.error("Error updating place as admin:", error);
-      throw error;
-    }
-  };
-
-  const handleAdminDeletePlace = async (placeId, hardDelete = false) => {
-    try {
-      const response = await fetch(`https://localhost:7164/api/admin/places/${placeId}?hardDelete=${hardDelete}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" }
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete place");
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.error("Error deleting place as admin:", error);
-      throw error;
-    }
-  };
-
-  const handleAdminGetAllPlaces = async (includeDeleted = false) => {
-    try {
-      const response = await fetch(`https://localhost:7164/api/admin/places?includeDeleted=${includeDeleted}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch places");
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.error("Error fetching places as admin:", error);
-      throw error;
-    }
-  };
-
-  const handleAdminSetHiddenGem = async (placeId, isHiddenGem, score) => {
-    try {
-      const response = await fetch(`https://localhost:7164/api/admin/places/${placeId}/hidden-gem`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          isHiddenGem: isHiddenGem,
-          score: score
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to set hidden gem status");
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.error("Error setting hidden gem status:", error);
-      throw error;
+  // ------------------- Admin login -------------------
+  const handleAdminLogin = (e) => {
+    e.preventDefault();
+    const id = e.target.id.value;
+    const pass = e.target.pass.value;
+    const found = admins.find(a => a.id === id && a.pass === pass);
+    if (found) {
+      setAdmin(found);
+      setPage('adminPage');
+    } else {
+      alert("Invalid ID or password!");
     }
   };
 
   // ------------------- Landing Page -------------------
-  if (page === 'myHome') {
-  return (
+  if (page === 'myHome') return <div className="App"><HomePage setPage={setPage} /></div>;
+
+  if (page === 'landing') return (
     <div className="App">
-      <HomePage setPage={setPage} />
+      <Sidebar setPage={setPage} />
+      <section className="hero">
+        <div className="background-blur" style={{ backgroundImage: `url(${cityBack})` }}></div>
+        <div className="background-overlay"></div>
+        <header className="hero-header">
+          <p>Are you an Adventurer, Hidden Gem Owner, or Admin?</p>
+          <div className="button-container">
+            <button className="option-button" onClick={() => setPage('explorer')}>Adventurer</button>
+            <button className="option-button" onClick={() => setPage('ownerForm')}>Hidden Gem Owner</button>
+            <button className="option-button" onClick={() => setPage('adminLogin')}>Admin Login</button>
+          </div>
+        </header>
+      </section>
     </div>
   );
-}
-
-
-  if (page === 'landing') {
-    return (
-      <div className="App">
-        <Sidebar setPage={setPage} />
-        <section className="hero">
-          <div className="background-blur" style={{ backgroundImage: `url(${cityBack})` }}></div>
-          <div className="background-overlay"></div>
-          <header className="hero-header">
-            
-            <p>Are you an Adventurer or a Hidden Gem Owner?</p>
-            <div className="button-container">
-              <button className="option-button" onClick={() => setPage('explorer')}>Adventurer</button>
-              <button className="option-button" onClick={() => setPage('ownerForm')}>Hidden Gem Owner</button>
-            </div>
-          </header>
-        </section>
-      </div>
-    );
-  }
 
   // ------------------- Owner Form -------------------
-  if (page === 'ownerForm') {
-    return (
-      <div className="App">
-        <Sidebar setPage={setPage} />
-        <section className="city-section">
-          <div className="top-buttons">
-            <button className="option-button" onClick={() => setPage('landing')}>Go Back</button>
+  if (page === 'ownerForm') return (
+    <div className="App">
+      <Sidebar setPage={setPage} />
+      <section className="city-section">
+        <div className="top-buttons">
+          <button className="option-button" onClick={() => { setPage('landing'); setEditRequestIndex(null); }}>Go Back</button>
+        </div>
+        <h2>{editRequestIndex !== null ? "Edit Your Hidden Gem Request" : "Add Your Hidden Gem"}</h2>
+        <form onSubmit={handleAddGemRequest} className="owner-form">
+          <input name="name" placeholder="Hidden Gem Name" defaultValue={editRequestIndex !== null ? pendingRequests[editRequestIndex].name : ""} required />
+          <select name="city" defaultValue={editRequestIndex !== null ? pendingRequests[editRequestIndex].city : ""} required>
+            <option value="">Select City</option>
+            <option value="Cairo">Cairo</option>
+            <option value="Giza">Giza</option>
+          </select>
+          <input name="location" placeholder="Location / Street" defaultValue={editRequestIndex !== null ? pendingRequests[editRequestIndex].location : ""} required />
+          <input name="images" type="file" multiple onChange={handleImagePreview} />
+          {previewImages.length > 0 && (
+            <div className="preview-container">
+              {previewImages.map((src, i) => (
+                <img key={i} src={src} alt="preview" className="gem-thumb" />
+              ))}
+            </div>
+          )}
+          <textarea name="description" placeholder="Description" rows={4} defaultValue={editRequestIndex !== null ? pendingRequests[editRequestIndex].description : ""} required></textarea>
+          <button type="submit" className="option-button">{editRequestIndex !== null ? "Update Request" : "Send Request"}</button>
+        </form>
+      </section>
+    </div>
+  );
+
+  // ------------------- Admin Login -------------------
+  if (page === 'adminLogin') return (
+    <div className="App">
+      <section className="city-section">
+        <h2>Admin Login</h2>
+        <form onSubmit={handleAdminLogin}>
+          <input name="id" placeholder="Admin ID" required />
+          <input name="pass" placeholder="Password" type="password" required />
+          <button type="submit" className="option-button">Login</button>
+        </form>
+      </section>
+    </div>
+  );
+
+  // ------------------- Admin Page -------------------
+  if (page === 'adminPage') return (
+    <div className="App">
+      <Sidebar setPage={setPage} />
+      <section className="city-section">
+        <div className="top-buttons">
+          <button className="option-button" onClick={() => { setAdmin(null); setPage('landing'); }}>Logout</button>
+        </div>
+        <h2>Pending Hidden Gem Requests</h2>
+        {pendingRequests.length === 0 && <p>No pending requests.</p>}
+        {pendingRequests.map((req, i) => (
+          <div key={i} className="hidden-gem">
+            <h4>{req.name}</h4>
+            <p>{req.description}</p>
+            <p><strong>City:</strong> {req.city}</p>
+            <p><strong>Location:</strong> {req.location}</p>
+            <div className="gem-images">
+              {req.images.map((file, idx) => (
+                <img key={idx} src={URL.createObjectURL(file)} alt={req.name} className="gem-thumb" />
+              ))}
+            </div>
+            <button className="option-button" onClick={() => handleApproveRequest(i)}>Approve</button>
+            <button className="option-button delete-btn" onClick={() => handleDeleteRequest(i)}>Delete</button>
+            <button className="option-button" onClick={() => handleEditRequest(i)}>Edit</button>
           </div>
-          <h2>Add Your Hidden Gem and Make it Shine</h2>
-          <form onSubmit={handleAddGem} className="owner-form">
-            <input name="name" placeholder="Hidden Gem Name" required />
-            <select name="city" required>
-              <option value="">Select City</option>
-              <option value="Cairo">Cairo</option>
-              <option value="Giza">Giza</option>
-            </select>
-            <input name="location" placeholder="Location / Street" required />
-            <input name="images" type="file" multiple onChange={handleImagePreview} />
-            {previewImages.length > 0 && (
-              <div className="preview-container">
-                {previewImages.map((src, i) => (
-                  <img key={i} src={src} alt="preview" className="gem-thumb" />
-                ))}
-              </div>
-            )}
-            <textarea name="description" placeholder="Description" rows={4} required></textarea>
-            <button type="submit" className="option-button">Add Hidden Gem</button>
-          </form>
-        </section>
-      </div>
-    );
-  }
+        ))}
+      </section>
+    </div>
+  );
 
   // ------------------- Explorer Page -------------------
   return (
@@ -332,14 +269,12 @@ function App() {
               </button>
             ))}
           </div>
-
           <div className="sub-section" ref={cairoRefs.Restaurants}>
             <h3>Restaurants in Cairo</h3>
             {cairoRestaurants.map((res, i) => (
               <p key={i}><strong>{res.name}:</strong> {res.description}</p>
             ))}
           </div>
-
           <div className="sub-section" ref={cairoRefs.HiddenGems}>
             <h3>Hidden Gems in Cairo</h3>
             {hiddenGems.filter(g => g.city === "Cairo").map((gem, i) => (
@@ -352,7 +287,6 @@ function App() {
                     <img key={idx} src={URL.createObjectURL(file)} alt={gem.name} className="gem-thumb" />
                   ))}
                 </div>
-                <button className="option-button delete-btn" onClick={() => handleDeleteGem(i)}>Delete</button>
               </div>
             ))}
           </div>
@@ -375,14 +309,12 @@ function App() {
               </button>
             ))}
           </div>
-
           <div className="sub-section" ref={gizaRefs.Restaurants}>
             <h3>Restaurants in Giza</h3>
             {gizaRestaurants.map((res, i) => (
               <p key={i}><strong>{res.name}:</strong> {res.description}</p>
             ))}
           </div>
-
           <div className="sub-section" ref={gizaRefs.HiddenGems}>
             <h3>Hidden Gems in Giza</h3>
             {hiddenGems.filter(g => g.city === "Giza").map((gem, i) => (
@@ -395,7 +327,6 @@ function App() {
                     <img key={idx} src={URL.createObjectURL(file)} alt={gem.name} className="gem-thumb" />
                   ))}
                 </div>
-                <button className="option-button delete-btn" onClick={() => handleDeleteGem(i)}>Delete</button>
               </div>
             ))}
           </div>
