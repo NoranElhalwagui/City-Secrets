@@ -3,6 +3,8 @@ import "./HomePage.css";
 import backImage from "../assets/backg.jpg";
 import arkan from "../assets/arkan.jpeg";
 import A from "../assets/5A.jpeg";
+import '../App.css'; 
+import Sidebar from "../components/Sidebar";
 
 export default function HomePage({ setPage }) {
   const [fade, setFade] = useState(false);
@@ -13,7 +15,9 @@ export default function HomePage({ setPage }) {
   }, []);
 
   return (
+    
     <div className={`home-container fade-page ${fade ? "active" : ""}`}>
+      <Sidebar setPage={setPage} /> 
       
       {/* Blurred background */}
       <div
