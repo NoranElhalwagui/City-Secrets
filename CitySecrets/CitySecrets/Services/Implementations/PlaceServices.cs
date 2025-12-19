@@ -1,8 +1,10 @@
-﻿namespace CitySecrets.Services.Implementations
+﻿using CitySecrets.Models;
+using CitySecrets.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace CitySecrets.Services.Implementations
 {
-    using CitySecrets.Models;
-    using CitySecrets.Services.Interfaces;
-    using Microsoft.EntityFrameworkCore;
+
 
     public class PlaceService : IPlaceService
     {
