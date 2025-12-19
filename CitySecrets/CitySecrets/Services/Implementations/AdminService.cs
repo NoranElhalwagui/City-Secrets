@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CitySecrets.Models;
+using CitySecrets.Services.Interfaces;
 
 namespace CitySecrets.Services
 {
-    public class AdminService
+    public class AdminService : IAdminService
     {
         private readonly AppDbContext _context;
 

@@ -16,8 +16,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register Services
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<CitySecrets.Services.Interfaces.IAuthService, CitySecrets.Services.AuthService>();
+builder.Services.AddScoped<CitySecrets.Services.Interfaces.IAdminService, CitySecrets.Services.AdminService>();
 builder.Services.AddScoped<CitySecrets.Services.Interfaces.IPlaceService, CitySecrets.Services.Implementations.PlaceService>();
 builder.Services.AddScoped<CitySecrets.Services.Interfaces.IFavoriteService, CitySecrets.Services.Implementations.FavoriteService>();
 builder.Services.AddScoped<CitySecrets.Services.Interfaces.IReviewService, CitySecrets.Services.Implementations.ReviewService>();

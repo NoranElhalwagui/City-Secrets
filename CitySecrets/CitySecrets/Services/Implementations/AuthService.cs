@@ -6,13 +6,14 @@ using System.Security.Cryptography;
 using System.Text;
 using CitySecrets.Models;
 using CitySecrets.DTOs;
+using CitySecrets.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using BCrypt.Net;  // 🔒 For secure password hashing
 
 namespace CitySecrets.Services
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
