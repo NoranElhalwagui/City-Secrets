@@ -69,7 +69,17 @@ namespace CitySecrets.Models
 
 
         [Required]
+        [ForeignKey(nameof(Category))]
         public int CategoryId { get; set; }
+
+        // Navigation property
+        public Category? Category { get; set; }
+
+        [ForeignKey(nameof(CreatedByUser))]
+        public int? CreatedByUserId { get; set; } // Track who added this place
+
+        // Navigation property
+        public User? CreatedByUser { get; set; }
 
         public bool IsDeleted { get; set; } = false;
 
@@ -79,6 +89,10 @@ namespace CitySecrets.Models
         public int RatingCount4 { get; set; }
         public int RatingCount5 { get; set; }
 
-
+        // Navigation properties - Collectionsgit
+        public ICollection<Review>? Reviews { get; set; }
+        public ICollection<Favorite>? Favorites { get; set; }
+        public ICollection<PlaceView>? PlaceViews { get; set; }
+        public ICollection<PlaceImage>? Images { get; set; }
     }
 }

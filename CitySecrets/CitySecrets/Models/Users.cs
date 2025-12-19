@@ -58,5 +58,13 @@ namespace CitySecrets.Models{
 
         public bool IsDeleted { get; set; } = false; //hide what the user have deleted instead of deleting it from the DB
 
-}
+        // Navigation properties - Collections
+        public ICollection<Review>? Reviews { get; set; }
+        public ICollection<Favorite>? Favorites { get; set; }
+        public ICollection<PlaceView>? PlaceViews { get; set; }
+        public ICollection<SearchHistory>? SearchHistories { get; set; }
+        public ICollection<ReviewHelpfulness>? ReviewHelpfulness { get; set; }
+        public ICollection<Notification>? Notifications { get; set; }
+        public UserPreference? UserPreference { get; set; }
     }
+}
