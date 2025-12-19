@@ -1,0 +1,129 @@
+/* LoadingSpinner.css */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+/* Spinner Container */
+.spinner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Individual Circles */
+.spinner-circle {
+  position: absolute;
+  border-radius: 50%;
+  border-style: solid;
+  animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.spinner-circle:nth-child(1) {
+  animation-delay: -0.45s;
+}
+
+.spinner-circle:nth-child(2) {
+  animation-delay: -0.3s;
+}
+
+.spinner-circle:nth-child(3) {
+  animation-delay: -0.15s;
+}
+
+/* Sizes */
+.spinner-small .spinner-circle {
+  width: 20px;
+  height: 20px;
+  border-width: 3px;
+}
+
+.spinner-medium .spinner-circle {
+  width: 40px;
+  height: 40px;
+  border-width: 4px;
+}
+
+.spinner-large .spinner-circle {
+  width: 60px;
+  height: 60px;
+  border-width: 5px;
+}
+
+/* Colors */
+.spinner-primary .spinner-circle {
+  border-color: #667eea transparent transparent transparent;
+}
+
+.spinner-secondary .spinner-circle {
+  border-color: #764ba2 transparent transparent transparent;
+}
+
+.spinner-white .spinner-circle {
+  border-color: #ffffff transparent transparent transparent;
+}
+
+/* Animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading Message */
+.loading-message {
+  margin-top: 20px;
+  color: #718096;
+  font-size: 0.95rem;
+  font-weight: 500;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Overlay Loading */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-overlay .loading-message {
+  color: white;
+  font-size: 1.1rem;
+}
+
+/* Inline Loading */
+.loading-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.loading-inline .spinner-small {
+  margin: 0;
+}
