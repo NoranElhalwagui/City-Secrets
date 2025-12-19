@@ -8,67 +8,96 @@ using System.Security.Claims;
 
 namespace CitySecrets.Controllers
 {
+    // 📍 PLACES CONTROLLER
+    // This handles all operations related to places (restaurants, cafes, attractions, etc.)
+    // Users can view places, logged-in users can add/edit their own places
     [ApiController]
     [Route("api/[controller]")]
     public class PlacesController : ControllerBase
     {
+        // Connections to services and database
         private readonly IPlaceService _placeService;
         private readonly AppDbContext _context;
         
+        // Constructor: Sets up the place service and database connection
         public PlacesController(IPlaceService placeService, AppDbContext context)
         {
             _placeService = placeService;
             _context = context;
         }
 
+        // 🔍 GET: api/places
+        // What it does: Gets a list of all places with filters
+        // Why: Main search/browse endpoint for discovering places
+        // Can filter by: category, price, location, rating, etc.
+        // Returns: Paginated list of places
         /// <summary>
         /// Get all places with filtering, sorting, and pagination
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetAllPlaces([FromQuery] PlaceFilterRequest filters)
         {
+            // Check if filter parameters are valid
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Get current user ID (if logged in) to show favorites
             var userId = GetCurrentUserId();
+            // Apply filters and get places
             var result = await GetFilteredPlacesAsync(filters, userId);
             return Ok(result);
         }
 
+        // 🏛️ GET: api/places/{id}
+        // What it does: Gets detailed info about one specific place
+        // Why: Shows full details page for a place (description, reviews, photos, etc.)
+        // Also tracks: Counts this as a "view" for analytics
         /// <summary>
         /// Get a specific place by ID and track view
         /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPlaceById(int id)
         {
+            // Get the place from database
             var place = await _placeService.GetPlaceByIdAsync(id);
             
+            // If place doesn't exist
             if (place == null)
                 return NotFound(new { message = "Place not found" });
 
+            // Get current user ID (if logged in)
             var userId = GetCurrentUserId();
+            // Convert place to DTO format with user-specific data (is it favorited?)
             var placeDto = await MapPlaceToDto(place, userId);
             
-            // Track place view
+            // Track that someone viewed this place (for trending/analytics)
             await TrackPlaceView(id, userId);
             
             return Ok(placeDto);
         }
 
+        // ➕ POST: api/places
+        // What it does: Creates a new place
+        // Why: Lets users add new places to the app (like adding a hidden gem)
+        // Requires: User must be logged in
+        // Needs: name, description, address, location (lat/lng), category, etc.
         /// <summary>
         /// Create a new place (requires authentication)
         /// </summary>
         [HttpPost]
-        [Authorize]
+        [Authorize]  // Must be logged in
         public async Task<IActionResult> CreatePlace([FromBody] CreatePlaceRequest request)
         {
+            // Check if all required fields are filled
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Get the user ID from their login token
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                 return Unauthorized();
 
+            // Create a new Place object with all the info
             var place = new Place
             {
                 Name = request.Name,
@@ -83,39 +112,51 @@ namespace CitySecrets.Controllers
                 Website = request.Website,
                 Email = request.Email,
                 OpeningHours = request.OpeningHours,
-                CreatedByUserId = userId
+                CreatedByUserId = userId  // Track who added this place
             };
 
+            // Save the place to database
             var createdPlace = await _placeService.CreatePlaceAsync(place, userId);
+            // Convert to DTO format
             var placeDto = await MapPlaceToDto(createdPlace, userId);
             
+            // Return the created place with its new ID
             return CreatedAtAction(nameof(GetPlaceById), new { id = createdPlace.PlaceId }, placeDto);
         }
 
+        // ✏️ PUT: api/places/{id}
+        // What it does: Updates an existing place's information
+        // Why: Lets users edit their places or admins update any place
+        // Requires: Must be logged in AND either be the place owner OR an admin
+        // Needs: Updated info (any fields can be changed)
         /// <summary>
         /// Update an existing place (owner or admin only)
         /// </summary>
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize]  // Must be logged in
         public async Task<IActionResult> UpdatePlace(int id, [FromBody] UpdatePlaceRequest request)
         {
+            // Check if all fields are valid
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Get the user ID from their login token
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                 return Unauthorized();
 
+            // Get the place from database
             var existingPlace = await _placeService.GetPlaceByIdAsync(id);
             if (existingPlace == null)
                 return NotFound(new { message = "Place not found" });
 
             // Check if user is owner or admin
             var isAdmin = User.IsInRole("Admin");
+            // Only place owner or admin can edit
             if (existingPlace.CreatedByUserId != userId && !isAdmin)
                 return Forbid();
 
-            // Update fields
+            // Update only the fields that were provided (others stay the same)
             if (request.Name != null) existingPlace.Name = request.Name;
             if (request.Description != null) existingPlace.Description = request.Description;
             if (request.Address != null) existingPlace.Address = request.Address;
@@ -129,44 +170,62 @@ namespace CitySecrets.Controllers
             if (request.Email != null) existingPlace.Email = request.Email;
             if (request.OpeningHours != null) existingPlace.OpeningHours = request.OpeningHours;
 
+            // Save the updated place
             var updatedPlace = await _placeService.UpdatePlaceAsync(id, existingPlace, userId);
+            // Convert to DTO format
             var placeDto = await MapPlaceToDto(updatedPlace!, userId);
             
             return Ok(placeDto);
         }
 
+        // 🗑️ DELETE: api/places/{id}
+        // What it does: Deletes a place (soft delete - doesn't actually delete, just hides it)
+        // Why: Admins can remove inappropriate or closed places
+        // Requires: Must be admin only (regular users can't delete places)
         /// <summary>
         /// Delete a place (soft delete, admin only)
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]  // Admin only
         public async Task<IActionResult> DeletePlace(int id)
         {
+            // Get the user ID from their login token
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                 return Unauthorized();
 
+            // Soft delete the place (marks as deleted, doesn't remove from database)
             var result = await _placeService.DeletePlaceAsync(id, userId);
             
+            // If place not found
             if (!result)
                 return NotFound(new { message = "Place not found" });
             
             return Ok(new { message = "Place deleted successfully" });
         }
 
+        // 🔎 GET: api/places/search?query=pizza
+        // What it does: Searches for places by keyword
+        // Why: Lets users find places by typing (like "pizza", "cafe", etc.)
+        // Needs: search query (at least 2 characters)
+        // Returns: All matching places
         /// <summary>
         /// Search places by keyword
         /// </summary>
         [HttpGet("search")]
         public async Task<IActionResult> SearchPlaces([FromQuery] string query)
         {
+            // Make sure search query is at least 2 characters
             if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
                 return BadRequest(new { message = "Search query must be at least 2 characters" });
 
+            // Search places by name, description, or address
             var places = await _placeService.SearchPlacesAsync(query);
+            // Get current user ID (if logged in)
             var userId = GetCurrentUserId();
             var placeDtos = new List<PlaceDto>();
             
+            // Convert each place to DTO format
             foreach (var place in places)
             {
                 placeDtos.Add(await MapPlaceToDto(place, userId));
@@ -175,6 +234,11 @@ namespace CitySecrets.Controllers
             return Ok(placeDtos);
         }
 
+        // 📍 GET: api/places/nearby?latitude=40.7128&longitude=-74.0060&radiusKm=5
+        // What it does: Finds places near a specific location
+        // Why: Shows places around user's current location or any address
+        // Needs: latitude, longitude, radius in kilometers (default 5km, max 100km)
+        // Returns: Places within the radius, sorted by distance (closest first)
         /// <summary>
         /// Get places near a specific location
         /// </summary>
@@ -184,20 +248,26 @@ namespace CitySecrets.Controllers
             [FromQuery] double longitude,
             [FromQuery] double radiusKm = 5)
         {
+            // Check if radius is reasonable (0-100 km)
             if (radiusKm <= 0 || radiusKm > 100)
                 return BadRequest(new { message = "Radius must be between 0 and 100 km" });
 
+            // Get all places within the radius
             var places = await _placeService.GetNearbyPlacesAsync(latitude, longitude, radiusKm);
+            // Get current user ID (if logged in)
             var userId = GetCurrentUserId();
             var placeDtos = new List<PlaceDto>();
             
+            // Convert each place to DTO and calculate exact distance
             foreach (var place in places)
             {
                 var dto = await MapPlaceToDto(place, userId);
+                // Calculate how far this place is from the search location
                 dto.DistanceKm = CalculateDistance(latitude, longitude, place.Latitude, place.Longitude);
                 placeDtos.Add(dto);
             }
             
+            // Sort by distance (closest first) and return
             return Ok(placeDtos.OrderBy(p => p.DistanceKm));
         }
 
