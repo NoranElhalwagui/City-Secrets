@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CitySecrets.Services;
+using CitySecrets.Services.Interfaces;
 using CitySecrets.DTOs;
 using System.Security.Claims;
 
@@ -14,10 +15,10 @@ namespace CitySecrets.Controllers
     public class AuthController : ControllerBase
     {
         // Connection to the auth service that handles passwords, tokens, etc.
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
         
         // Constructor: Sets up the auth service
-        public AuthController(AuthService authService)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
         }

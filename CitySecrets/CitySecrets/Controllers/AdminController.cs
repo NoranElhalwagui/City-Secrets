@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CitySecrets.Models;
 using CitySecrets.Services;
+using CitySecrets.Services.Interfaces;
 using CitySecrets.DTOs;
 using System.Security.Claims;
 
@@ -15,10 +16,10 @@ namespace CitySecrets.Controllers
     public class AdminController : ControllerBase
     {
         // This is our connection to the admin service that does all the work
-        private readonly AdminService _adminService;
+        private readonly IAdminService _adminService;
         
         // Constructor: Sets up the admin service when this controller is created
-        public AdminController(AdminService adminService)
+        public AdminController(IAdminService adminService)
         {
             _adminService = adminService;
         }
