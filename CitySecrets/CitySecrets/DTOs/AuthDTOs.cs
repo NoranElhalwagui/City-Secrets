@@ -55,6 +55,10 @@ namespace CitySecrets.DTOs
 
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; } = "";
+
+        // 🛡️ For rate limiting and security tracking
+        public string? IpAddress { get; set; }
+        public string? UserAgent { get; set; }
     }
 
     public class RefreshTokenRequest

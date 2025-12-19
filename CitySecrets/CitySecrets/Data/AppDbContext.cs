@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
     public DbSet<ReviewHelpfulness> ReviewHelpfulness { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<PlaceImage> PlaceImages { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }  // 🔄 For staying logged in
+    public DbSet<LoginAttempt> LoginAttempts { get; set; }  // 🛡️ For tracking login attempts
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
