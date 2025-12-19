@@ -1,4 +1,4 @@
-/* Import a chic, modern font */
+/* HomePage.css */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
 
 body, html, .home-container {
@@ -8,9 +8,9 @@ body, html, .home-container {
   width: 100%;
   min-height: 100vh;
   color: white;
+  overflow-x: hidden;
 }
 
-/* ⬅ NEW: Smooth fade page transition */
 .fade-page {
   opacity: 0;
   transition: opacity 0.6s ease-in-out;
@@ -19,7 +19,6 @@ body, html, .home-container {
   opacity: 1;
 }
 
-/* Blurred background */
 .home-background {
   position: fixed;
   top: 0;
@@ -43,18 +42,14 @@ body, html, .home-container {
   z-index: -1;
 }
 
-/* Title at the top */
 .home-title-top {
-  display: block;
   text-align: center;
   font-size: 5rem;
   font-weight: 700;
   color: #ffdd59;
   text-shadow: 0 2px 10px rgba(0,0,0,0.6);
   margin-top: 25px;
-  margin-bottom: 20px; /* ⬅ NEW: Reduces gap to About */
-
-  /* Animation */
+  margin-bottom: 20px;
   filter: blur(8px);
   animation: titleClear 3s ease-out forwards;
 }
@@ -64,28 +59,35 @@ body, html, .home-container {
   100% { filter: blur(0); }
 }
 
-/* Split layout */
+/* Split Layout */
 .home-content {
   position: relative;
-  margin-top: 40px; /* ⬅ NEW: reduced spacing */
+  margin-top: 40px;
   display: flex;
   justify-content: center;
   padding: 0 20px;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .home-split {
   display: flex;
+  width: 100%;
   gap: 50px;
-  justify-content: center;
   align-items: flex-start;
-  flex-wrap: wrap;
 }
 
-/* Left side */
+/* Left Side - 70% */
 .home-left {
-  flex: 1.5;
-  min-width: 300px;
+  flex: 7;
+  min-width: 60%;
   text-align: left;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .home-left h2 {
@@ -93,11 +95,13 @@ body, html, .home-container {
   margin-bottom: 15px;
   font-size: 2rem;
   font-weight: 700;
+  color: #ffdd59;
 }
 
 .home-left p, .home-left li {
   font-size: 1.1rem;
   line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .home-left ul {
@@ -105,58 +109,121 @@ body, html, .home-container {
   margin-bottom: 20px;
 }
 
-/* Right side */
+.home-left li {
+  margin-bottom: 8px;
+}
+
+/* Right Side - 30% */
 .home-right {
-  flex: 1;
-  min-width: 250px;
+  flex: 3;
+  min-width: 30%;
+}
+
+/* Registration Box - 40% Transparent */
+.registration-box {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.registration-box h2 {
   text-align: center;
-}
-
-.home-right h2 {
+  color: #ffdd59;
+  margin-top: 0;
+  margin-bottom: 25px;
   font-size: 1.8rem;
-  margin-bottom: 15px;
 }
 
-.image-box img {
-  width: 90%;
-  height: 140px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-top: 10px;
-  transition: transform 0.3s ease;
+/* Form Styles */
+.form-group {
+  margin-bottom: 20px;
 }
 
-.image-box img:hover {
-  transform: scale(1.05);
-}
-
-.image-caption {
-  margin-top: 5px;
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
   font-size: 1rem;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
-.reviews-section {
-  margin-top: 20px;
+.form-group input:focus {
+  outline: none;
+  border-color: #ffdd59;
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 2px rgba(255, 221, 89, 0.3);
+}
+
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.checkbox label {
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
   font-size: 0.95rem;
 }
 
-.review-quote {
-  font-style: italic;
-  font-size: 0.95rem;
+.checkbox input[type="checkbox"] {
+  width: auto;
+  margin-right: 10px;
+  accent-color: #ffdd59;
 }
 
-/* Button */
-.home-button {
+/* Buttons */
+.register-btn, .admin-login-btn, .home-button {
   cursor: pointer;
   border: none;
   padding: 12px 25px;
   border-radius: 10px;
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.register-btn {
   background-color: #ffdd59;
   color: #111;
+}
+
+.register-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 221, 89, 0.4);
+}
+
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-login-btn {
+  background-color: transparent;
+  color: #ffdd59;
+  border: 2px solid #ffdd59;
+}
+
+.admin-login-btn:hover {
+  background-color: #ffdd59;
+  color: #111;
+}
+
+.home-button {
+  background-color: #ffdd59;
+  color: #111;
+  width: auto;
+  padding: 12px 30px;
   margin-top: 20px;
-  transition: all 0.3s ease;
 }
 
 .home-button:hover {
@@ -164,25 +231,204 @@ body, html, .home-container {
   box-shadow: 0 0 15px #ffdd59;
 }
 
+/* Messages */
+.message {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.message.success {
+  background-color: rgba(46, 204, 113, 0.2);
+  border: 1px solid rgba(46, 204, 113, 0.4);
+  color: #2ecc71;
+}
+
+.message.error {
+  background-color: rgba(231, 76, 60, 0.2);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  color: #e74c3c;
+}
+
+/* Admin Login Section */
+.admin-login-section {
+  margin-top: 25px;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 221, 89, 0.3);
+}
+
+.admin-login-section h3 {
+  color: #ffdd59;
+  margin-top: 0;
+  font-size: 1.2rem;
+}
+
+.admin-login-section p {
+  margin: 8px 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Login Link */
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: #ffdd59;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 5px;
+  padding: 0;
+  font-size: inherit;
+  text-decoration: underline;
+}
+
+.text-btn:hover {
+  color: #ffc300;
+}
+
 /* Responsive */
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1024px) {
   .home-split {
     flex-direction: column;
     gap: 30px;
-    align-items: center;
   }
-
+  
   .home-left, .home-right {
-    max-width: 90%;
-    text-align: center;
+    width: 100%;
+    min-width: 100%;
   }
-
-  .image-box img {
-    width: 80%;
-    height: 130px;
-  }
-
+  
   .home-title-top {
     font-size: 3.5rem;
   }
+}
+
+@media screen and (max-width: 768px) {
+  .home-content {
+    padding: 0 15px;
+  }
+  
+  .registration-box {
+    padding: 20px;
+  }
+  
+  .home-title-top {
+    font-size: 2.8rem;
+  }
+}
+/* Add these to your existing HomePage.css */
+
+.navigation-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+}
+
+.home-button.secondary {
+  background-color: transparent;
+  border: 2px solid #ffdd59;
+  color: #ffdd59;
+}
+
+.home-button.secondary:hover {
+  background-color: rgba(255, 221, 89, 0.1);
+}
+
+.home-button.accent {
+  background-color: #667eea;
+  color: white;
+}
+
+.home-button.accent:hover {
+  background-color: #5a67d8;
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+}
+
+.welcome-section {
+  text-align: center;
+}
+
+.welcome-section h2 {
+  color: #ffdd59;
+  margin-bottom: 10px;
+}
+
+.welcome-section p {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 25px;
+}
+
+.user-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-section {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.login-section p {
+  margin-bottom: 15px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.guest-notice {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+
+.guest-notice p {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.guest-notice ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.guest-notice li {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 5px;
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 5px;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.text-btn:hover {
+  color: #ff5252;
+}
+
+/* Remove admin sections */
+.admin-login-section,
+.admin-login-btn {
+  display: none;
 }

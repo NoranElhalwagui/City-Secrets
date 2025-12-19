@@ -1,190 +1,119 @@
-import { useRef, useState } from 'react';
-import HomePage from "./pages/HomePage";
-import Landing from "./pages/Landing";
-import AdminLogin from "./pages/AdminLogin";
-import Explorer from "./pages/Explorer";
+import React, { useState, useEffect } from 'react';
+import './App.css';
+import Sidebar from './components/Sidebar';
+
+// Import all pages
+import HomePage from './pages/HomePage';
+import FeedPage from './pages/FeedPage';
+import ExplorePage from './pages/ExplorePage';
+import HiddenGemOwnerPage from './pages/HiddenGemOwnerPage';
 import AdminDashboard from './pages/AdminDashboard';
-import OwnerForm from "./pages/OwnerForm";
-import cityBack from './assets/backg.jpg';
-import cairoImg from './assets/cairo.jpg';
-import gizaImg from './assets/giza.jpg';
-import './App.css'; 
-import Sidebar from "./components/Sidebar";
+
+// Import auth service
+import { authService } from './services';
 
 function App() {
-  const [page, setPage] = useState('myHome'); // myHome, landing, explorer, ownerForm, adminLogin, adminPage
-  const [activeCity, setActiveCity] = useState(null);
-  const [hiddenGems, setHiddenGems] = useState([]);
-  const [previewImages, setPreviewImages] = useState([]);
-  const [pendingRequests, setPendingRequests] = useState([]);
-  const [admin, setAdmin] = useState(null);
-  const [editRequestIndex, setEditRequestIndex] = useState(null);
+  const [currentPage, setCurrentPage] = useState('home');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Hardcoded admins
-  const admins = [
-    { id: "admin1", pass: "1234" },
-    { id: "admin2", pass: "2345" },
-    { id: "admin3", pass: "3456" },
-    { id: "admin4", pass: "4567" },
-  ];
+  useEffect(() => {
+    checkAuthentication();
+  }, []);
 
-  // Refs for city sections
-  const cairoSectionRef = useRef(null);
-  const gizaSectionRef = useRef(null);
-
-  // Refs for sub-sections
-  const cairoRefs = {
-    Restaurants: useRef(null),
-    Clothes: useRef(null),
-    Parks: useRef(null),
-    HiddenGems: useRef(null),
-  };
-  const gizaRefs = {
-    Restaurants: useRef(null),
-    Clothes: useRef(null),
-    Parks: useRef(null),
-    HiddenGems: useRef(null),
-  };
-
-  const cairoRestaurants = [
-    { name: "Nile View Cafe", description: "Beautiful view of the Nile with Egyptian dishes." },
-    { name: "Koshary El Tahrir", description: "Famous for traditional koshary." },
-  ];
-  const gizaRestaurants = [
-    { name: "Pyramid Lounge", description: "Dine near the pyramids with authentic food." },
-    { name: "Giza Garden Cafe", description: "Cozy garden seating and coffee." },
-  ];
-
-  // ------------------- Handlers -------------------
-  const handleCityClick = (city) => {
-    setActiveCity(city);
-    const ref = city === 'cairo' ? cairoSectionRef : gizaSectionRef;
-    if (ref.current) ref.current.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleCategoryClick = (city, category) => {
-    const ref = city === 'cairo' ? cairoRefs[category] : gizaRefs[category];
-    if (ref.current) ref.current.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleImagePreview = (e) => {
-    setPreviewImages(Array.from(e.target.files).map(file => URL.createObjectURL(file)));
-  };
-
-  // ------------------- Owner submits gem -------------------
-  const handleAddGemRequest = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const newGem = {
-      name: form.name.value,
-      city: form.city.value,
-      location: form.location.value,
-      description: form.description.value,
-      images: Array.from(form.images.files),
-    };
-
-    // If editing a request
-    if (editRequestIndex !== null) {
-      const updatedRequests = [...pendingRequests];
-      updatedRequests[editRequestIndex] = newGem;
-      setPendingRequests(updatedRequests);
-      setEditRequestIndex(null);
-      alert("Request updated successfully!");
+  const checkAuthentication = () => {
+    const token = localStorage.getItem('accessToken');
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    if (token) {
+      setIsAuthenticated(true);
+      setUser(storedUser);
+      
+      // Verify token with backend
+      authService.getCurrentUser()
+        .then(result => {
+          if (result.success) {
+            setUser(result.user);
+          } else {
+            // Token expired or invalid
+            handleLogout();
+          }
+        })
+        .catch(() => {
+          handleLogout();
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     } else {
-      setPendingRequests([...pendingRequests, newGem]);
-      alert("Your gem request has been sent to admin for approval!");
-    }
-
-    setPage('landing');
-    setPreviewImages([]);
-  };
-
-  // ------------------- Admin actions -------------------
-  const handleApproveRequest = (index) => {
-    const gem = pendingRequests[index];
-    setHiddenGems([...hiddenGems, gem]);
-    const newRequests = [...pendingRequests];
-    newRequests.splice(index, 1);
-    setPendingRequests(newRequests);
-  };
-
-  const handleDeleteRequest = (index) => {
-    const newRequests = [...pendingRequests];
-    newRequests.splice(index, 1);
-    setPendingRequests(newRequests);
-  };
-
-  const handleEditRequest = (index) => {
-    const request = pendingRequests[index];
-    setEditRequestIndex(index);
-    setPreviewImages(request.images.map(file => URL.createObjectURL(file)));
-    setPage('ownerForm');
-  };
-
-  // ------------------- Admin login -------------------
-  const handleAdminLogin = (e) => {
-    e.preventDefault();
-    const id = e.target.id.value;
-    const pass = e.target.pass.value;
-    const found = admins.find(a => a.id === id && a.pass === pass);
-    if (found) {
-      setAdmin(found);
-      setPage('adminPage');
-    } else {
-      alert("Invalid ID or password!");
+      setLoading(false);
     }
   };
 
-  // homepage and landing and adminlogin and explorer and admindashboard and ownerform pages
-  if (page === 'myHome') return <div className="App"><HomePage setPage={setPage} /></div>;
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsAuthenticated(false);
+    setUser(null);
+    setCurrentPage('home');
+  };
 
-  if (page === 'landing') return <div className="App"><Landing setPage={setPage} /></div>
+  const handleLoginSuccess = (userData) => {
+    setIsAuthenticated(true);
+    setUser(userData);
+    setCurrentPage('feed'); // Redirect to feed after login
+  };
 
-  if (page === 'adminLogin') return (<div className="App"><AdminLogin setPage={setPage}/></div>);
+  const renderPage = () => {
+    if (loading) {
+      return (
+        <div className="loading-screen">
+          <div className="spinner"></div>
+          <p>Loading City Secrets...</p>
+        </div>
+      );
+    }
 
-  if (page === "ownerForm") return (
-    <OwnerForm
-      setPage={setPage}
-      handleAddGemRequest={handleAddGemRequest}
-      handleImagePreview={handleImagePreview}
-      previewImages={previewImages}
-      pendingRequests={pendingRequests}
-      editRequestIndex={editRequestIndex}
-      setEditRequestIndex={setEditRequestIndex}
-    />
+    switch (currentPage) {
+      case 'home':
+        return <HomePage setPage={setCurrentPage} onLoginSuccess={handleLoginSuccess} />;
+      
+      case 'feed':
+        if (!isAuthenticated) {
+          return <HomePage setPage={setCurrentPage} onLoginSuccess={handleLoginSuccess} />;
+        }
+        return <FeedPage setPage={setCurrentPage} user={user} />;
+      
+      case 'explore':
+        return <ExplorePage setPage={setCurrentPage} user={user} />;
+      
+      case 'hidden-gem':
+        if (!isAuthenticated) {
+          alert('Please login to submit a hidden gem!');
+          return <HomePage setPage={setCurrentPage} onLoginSuccess={handleLoginSuccess} />;
+        }
+        return <HiddenGemOwnerPage setPage={setCurrentPage} user={user} />;
+      
+      case 'admin':
+        if (!isAuthenticated || user?.role !== 'Admin') {
+          alert('Admin access required!');
+          return <HomePage setPage={setCurrentPage} onLoginSuccess={handleLoginSuccess} />;
+        }
+        return <AdminDashboard setPage={setCurrentPage} user={user} />;
+      
+      default:
+        return <HomePage setPage={setCurrentPage} onLoginSuccess={handleLoginSuccess} />;
+    }
+  };
+
+  return (
+    <div className="App">
+      <Sidebar setPage={setCurrentPage} />
+      <main className="main-content">
+        {renderPage()}
+      </main>
+    </div>
   );
-
-
-  if (page === "adminPage") return (
-    <AdminDashboard
-      setPage={setPage}
-      setAdmin={setAdmin}
-      pendingRequests={pendingRequests}
-      handleApproveRequest={handleApproveRequest}
-      handleDeleteRequest={handleDeleteRequest}
-      handleEditRequest={handleEditRequest}
-    />
-  );
-
-
-  if (page === "explorer") return (
-    <Explorer
-      setPage={setPage}
-      activeCity={activeCity}
-      handleCityClick={handleCityClick}
-      handleCategoryClick={handleCategoryClick}
-      cairoSectionRef={cairoSectionRef}
-      gizaSectionRef={gizaSectionRef}
-      cairoRefs={cairoRefs}
-      gizaRefs={gizaRefs}
-      cairoRestaurants={cairoRestaurants}
-      gizaRestaurants={gizaRestaurants}
-      hiddenGems={hiddenGems}
-    />
-  );
-
-
-
 }
 
 export default App;
