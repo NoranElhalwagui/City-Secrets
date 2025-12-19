@@ -23,25 +23,9 @@ builder.Services.AddCors(options =>
 // Controllers
 builder.Services.AddControllers();
 
-<<<<<<< HEAD
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<IPlaceService, PlaceService>();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend",
-        policy => policy
-            .WithOrigins("http://localhost:3000")
-            .AllowAnyHeader()
-            .AllowAnyMethod());
-});
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-=======
 // Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
->>>>>>> a9eaf9b54d85cb3ea15a65cd7e57c4b3d8b65518
 
 var app = builder.Build();
 
