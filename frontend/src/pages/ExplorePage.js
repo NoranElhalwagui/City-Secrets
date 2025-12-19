@@ -19,6 +19,15 @@ export default function ExplorePage({ setPage }) {
     fetchPlaces();
   }, []);
 
+  // Check if a location was selected from Home choices
+  useEffect(() => {
+    const loc = localStorage.getItem('exploreLocation');
+    if (loc) {
+      setFilters(prev => ({ ...prev, location: loc }));
+      localStorage.removeItem('exploreLocation');
+    }
+  }, []);
+
   useEffect(() => {
     filterAndSortPlaces();
   }, [places, filters, searchTerm]);

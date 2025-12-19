@@ -108,7 +108,7 @@ function App() {
 
   return (
     <div className="App">
-      <Sidebar setPage={setCurrentPage} />
+      {currentPage !== 'home' && <Sidebar setPage={setCurrentPage} />}
       <main className="main-content">
         {renderPage()}
       </main>

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./HomePage.css";
 import backImage from "../assets/backg.jpg";
-import Sidebar from "../components/Sidebar";
+// Sidebar removed from HomePage (rendered by App.js when needed)
 import axios from "axios";
+import cairoImage from "../assets/cairo.jpg";
+import gizaImage from "../assets/giza.jpg";
 
-export default function HomePage({ setPage }) {
+export default function HomePage({ setPage, onLoginSuccess }) {
   const [fade, setFade] = useState(false);
   const [registerData, setRegisterData] = useState({
     username: "",
@@ -12,6 +14,7 @@ export default function HomePage({ setPage }) {
     password: "",
     confirmPassword: ""
   });
+  const [showChoices, setShowChoices] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
   const [user, setUser] = useState(null);
@@ -45,29 +48,34 @@ export default function HomePage({ setPage }) {
     setMessage({ text: "", type: "" });
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      // Register
+      await axios.post('http://localhost:5000/api/auth/register', {
         username: registerData.username,
         email: registerData.email,
         password: registerData.password
       });
 
-      setMessage({ 
-        text: "Registration successful! You can now login.", 
-        type: "success" 
-      });
-      
-      setRegisterData({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: ""
+      // Auto-login after register so user can immediately continue
+      const loginRes = await axios.post('http://localhost:5000/api/auth/login', {
+        email: registerData.email,
+        password: registerData.password
       });
 
+      localStorage.setItem('accessToken', loginRes.data.accessToken);
+      localStorage.setItem('refreshToken', loginRes.data.refreshToken);
+      localStorage.setItem('user', JSON.stringify(loginRes.data.user));
+
+      setUser(loginRes.data.user);
+      setMessage({ text: `Welcome, ${loginRes.data.user.username}!`, type: 'success' });
+      setShowChoices(true);
+
+      // notify parent about login success (App.js)
+      if (onLoginSuccess) onLoginSuccess(loginRes.data.user);
+
+      setRegisterData({ username: "", email: "", password: "", confirmPassword: "" });
+
     } catch (error) {
-      setMessage({ 
-        text: error.response?.data?.message || "Registration failed. Please try again.", 
-        type: "error" 
-      });
+      setMessage({ text: error.response?.data?.message || "Registration failed. Please try again.", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -77,34 +85,14 @@ export default function HomePage({ setPage }) {
     setPage("login"); // You need to create a LoginPage.js
   };
 
-  const handleQuickLogin = async (email, password) => {
-    try {
-      setLoading(true);
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
-        email,
-        password
-      });
-      
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      setUser(response.data.user);
-      setMessage({ 
-        text: `Welcome back, ${response.data.user.username}!`, 
-        type: "success" 
-      });
-      
-      // Redirect to feed after login
-      setTimeout(() => setPage("feed"), 1000);
-    } catch (error) {
-      setMessage({ 
-        text: "Login failed. Please check credentials.", 
-        type: "error" 
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleAdminLogin = () => {
+    const adminUser = { username: 'Admin', email: 'admin@gmail.com', role: 'Admin' };
+    localStorage.setItem('accessToken', 'local-admin-token');
+    localStorage.setItem('user', JSON.stringify(adminUser));
+    setUser(adminUser);
+    setMessage({ text: 'Logged in as Admin', type: 'success' });
+    if (onLoginSuccess) onLoginSuccess(adminUser);
+    setTimeout(() => setPage('admin'), 700);
   };
 
   const handleLogout = () => {
@@ -115,7 +103,6 @@ export default function HomePage({ setPage }) {
 
   return (
     <div className={`home-container fade-page ${fade ? "active" : ""}`}>
-      <Sidebar setPage={setPage} />
       
       <div 
         className="home-background"
@@ -246,6 +233,42 @@ export default function HomePage({ setPage }) {
                       {loading ? "Registering..." : "Create Account"}
                     </button>
                   </form>
+
+                  {/* Admin quick-login (local) */}
+                  <div style={{ marginTop: 8 }}>
+                    <button type="button" className="admin-login-btn" onClick={handleAdminLogin}>
+                      Admin Quick Login
+                    </button>
+                  </div>
+
+                  {/* After successful registration show choices */}
+                  {showChoices && (
+                    <div className="choice-grid" style={{ marginTop: 20 }}>
+                      <h3 style={{ textAlign: 'center', color: '#ffdd59' }}>Choose where to go next</h3>
+                      <div className="choice-cards" style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
+                        <div className="choice-card" style={{ cursor: 'pointer', width: 120 }} onClick={() => { localStorage.setItem('exploreLocation', 'cairo'); setPage('explore'); }}>
+                          <img src={cairoImage} alt="Cairo" style={{ width: '100%', borderRadius: 8 }} />
+                          <div style={{ textAlign: 'center', marginTop: 6 }}>Explore Cairo</div>
+                        </div>
+
+                        <div className="choice-card" style={{ cursor: 'pointer', width: 120 }} onClick={() => { localStorage.setItem('exploreLocation', 'giza'); setPage('explore'); }}>
+                          <img src={gizaImage} alt="Giza" style={{ width: '100%', borderRadius: 8 }} />
+                          <div style={{ textAlign: 'center', marginTop: 6 }}>Explore Giza</div>
+                        </div>
+
+                        <div className="choice-card" style={{ cursor: 'pointer', width: 160 }} onClick={() => setPage('hidden-gem')}>
+                          <div style={{ background: 'rgba(255,255,255,0.04)', padding: 12, borderRadius: 8, textAlign: 'center' }}>
+                            <strong>Hidden Gem Owner?</strong>
+                            <div style={{ marginTop: 8 }}>Submit your place</div>
+                          </div>
+                        </div>
+
+                        <div className="choice-card" style={{ cursor: 'pointer', width: 120 }} onClick={() => { if (user) setPage('feed'); else setMessage({ text: 'Please login to view the feed', type: 'error' }); }}>
+                          <div style={{ background: 'rgba(255,255,255,0.04)', padding: 12, borderRadius: 8, textAlign: 'center' }}>Check the Feed</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="login-section">
                     <p>Already have an account?</p>

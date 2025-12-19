@@ -121,12 +121,13 @@ body, html, .home-container {
 
 /* Registration Box - 40% Transparent */
 .registration-box {
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
+  background-color: rgba(255, 255, 255, 0.4); /* 40% transparent box */
+  backdrop-filter: blur(8px);
   border-radius: 20px;
   padding: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  color: #111;
 }
 
 .registration-box h2 {
