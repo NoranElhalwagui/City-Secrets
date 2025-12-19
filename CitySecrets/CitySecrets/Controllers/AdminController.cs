@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net.NetworkInformation;
 using CitySecrets.Models;
-using CitySecrets.Services;
+using CitySecrets.Services.Implementations;
 
 namespace CitySecrets.Controllers
 {

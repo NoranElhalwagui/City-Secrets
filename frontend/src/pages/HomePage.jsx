@@ -1,12 +1,23 @@
-import React from "react";
-import './HomePage.css';
-import backImage from '../assets/backg.jpg';
-import arkan from '../assets/arkan.jpeg';
-import A from '../assets/5A.jpeg';
+import React, { useEffect, useState } from "react";
+import "./HomePage.css";
+import backImage from "../assets/backg.jpg";
+import arkan from "../assets/arkan.jpeg";
+import A from "../assets/5A.jpeg";
+import '../App.css'; 
+import Sidebar from "../components/Sidebar";
 
 export default function HomePage({ setPage }) {
+  const [fade, setFade] = useState(false);
+
+  // Smooth fade in after mount
+  useEffect(() => {
+    setTimeout(() => setFade(true), 50);
+  }, []);
+
   return (
-    <div className="home-container">
+    
+    <div className={`home-container fade-page ${fade ? "active" : ""}`}>
+      <Sidebar setPage={setPage} /> 
       
       {/* Blurred background */}
       <div
@@ -22,7 +33,7 @@ export default function HomePage({ setPage }) {
       <div className="home-content">
         <div className="home-split">
 
-          {/* Left side: About / Features / Benefits */}
+          {/* LEFT SIDE */}
           <div className="home-left">
             <h2>About City Secrets</h2>
             <p>
@@ -46,13 +57,15 @@ export default function HomePage({ setPage }) {
             </button>
           </div>
 
-          {/* Right side: Hottest Places */}
+          {/* RIGHT SIDE */}
           <div className="home-right">
             <h2>Hottest Places</h2>
+
             <div className="image-box">
               <img src={arkan} alt="Arkan" />
               <p className="image-caption">Arkan</p>
             </div>
+
             <div className="image-box">
               <img src={A} alt="5A" />
               <p className="image-caption">5A</p>

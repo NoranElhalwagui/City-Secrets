@@ -1,4 +1,4 @@
-using System;
+
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,10 +11,18 @@ namespace CitySecrets.Models
         public int ReviewId { get; set; }
 
         [Required]
+        [ForeignKey(nameof(Place))]
         public int PlaceId { get; set; }
 
+        // Navigation property
+        public Place? Place { get; set; }
+
         [Required]
+        [ForeignKey(nameof(User))]
         public int UserId { get; set; }
+
+        // Navigation property
+        public User? User { get; set; }
 
         [Required]
         [Range(0, 5)]
@@ -43,7 +51,7 @@ namespace CitySecrets.Models
 
         public bool IsDeleted { get; set; } = false;
 
-
-        
+        // Navigation properties - Collections
+        public ICollection<ReviewHelpfulness>? ReviewHelpfulness { get; set; }
     }
 }

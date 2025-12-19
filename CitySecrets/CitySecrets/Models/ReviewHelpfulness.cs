@@ -4,27 +4,30 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CitySecrets.Models
 {
-    public class Favorite
+    public class ReviewHelpfulness
     {
         [Key]
         public int Id { get; set; }
-
+        
+        [Required]
+        [ForeignKey(nameof(Review))]
+        public int ReviewId { get; set; }
+        
+        // Navigation property
+        public Review? Review { get; set; }
+        
         [Required]
         [ForeignKey(nameof(User))]
         public int UserId { get; set; }
-
+        
         // Navigation property
         public User? User { get; set; }
-
+        
         [Required]
-        [ForeignKey(nameof(Place))]
-        public int PlaceId { get; set; }
-
-        // Navigation property
-        public Place? Place { get; set; }
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+        public bool IsHelpful { get; set; } // true = helpful, false = not helpful
+        
+        public DateTime VotedAt { get; set; } = DateTime.UtcNow;
+        
         public bool IsDeleted { get; set; } = false;
     }
 }
