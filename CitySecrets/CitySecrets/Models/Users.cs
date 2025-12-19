@@ -52,6 +52,19 @@ namespace CitySecrets.Models{
         public bool IsAdmin { get; set; } = false;
         public bool EmailVerified { get; set; } = false; //blocks adding reviews for spam or fake accounts
 
+        // ✉️ Email Verification - To confirm user's email is real
+        [MaxLength(500)]
+        public string? EmailVerificationToken { get; set; }  // Secret code sent to email
+        public DateTime? EmailVerificationTokenExpiry { get; set; }  // When code expires
+
+        // 🔑 Password Reset - To help users who forgot password
+        [MaxLength(500)]
+        public string? PasswordResetToken { get; set; }  // Secret code for password reset
+        public DateTime? PasswordResetTokenExpiry { get; set; }  // When code expires
+
+        // 🛡️ Account Security - Prevent brute force attacks
+        public int FailedLoginAttempts { get; set; } = 0;  // How many wrong passwords?
+        public DateTime? AccountLockedUntil { get; set; }  // Locked out until this time
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;//automatically sets it to the current time when the user is created
         public DateTime? LastLoginAt { get; set; }
@@ -65,6 +78,7 @@ namespace CitySecrets.Models{
         public ICollection<SearchHistory>? SearchHistories { get; set; }
         public ICollection<ReviewHelpfulness>? ReviewHelpfulness { get; set; }
         public ICollection<Notification>? Notifications { get; set; }
+        public ICollection<RefreshToken>? RefreshTokens { get; set; }
         public UserPreference? UserPreference { get; set; }
     }
 }

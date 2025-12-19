@@ -41,7 +41,7 @@ namespace CitySecrets.Services.Implementations
                     Name = c.Name,
                     Description = c.Description,
                     IconUrl = c.IconUrl,
-                    PlaceCount = _context.Place.Count(p => p.CategoryId == c.CategoryId && !p.IsDeleted && p.IsApproved)
+                    PlaceCount = _context.Place.Count(p => p.CategoryId == c.CategoryId && !p.IsDeleted && p.IsVerified)
                 })
                 .OrderBy(c => c.Name)
                 .ToList();

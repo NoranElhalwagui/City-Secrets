@@ -190,18 +190,3 @@ namespace CitySecrets.Services.Implementations
         }
     }
 }
-
-        public async Task<bool> MarkAllAsReadAsync(int userId)
-        {
-            foreach (var n in _notifications.Where(n => n.UserId == userId))
-                n.IsRead = true;
-
-            return true;
-        }
-
-        public async Task<int> GetUnreadCountAsync(int userId)
-        {
-            return _notifications.Count(n => n.UserId == userId && !n.IsRead);
-        }
-    }
-}
