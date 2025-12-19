@@ -19,6 +19,8 @@ builder.Services.AddScoped<CitySecrets.Services.Interfaces.IFavoriteService, Cit
 builder.Services.AddScoped<CitySecrets.Services.Interfaces.IReviewService, CitySecrets.Services.Implementations.ReviewService>();
 builder.Services.AddScoped<CitySecrets.Services.Interfaces.IRecommendationService, CitySecrets.Services.Implementations.RecommendationService>();
 builder.Services.AddScoped<CitySecrets.Services.Interfaces.ICategoryService, CitySecrets.Services.Implementations.CategoryService>();
+builder.Services.AddScoped<CitySecrets.Services.Interfaces.INotificationService, CitySecrets.Services.Implementations.NotificationService>();
+builder.Services.AddScoped<CitySecrets.Services.Interfaces.ISearchService, CitySecrets.Services.SearchService>();
 
 // JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLong123456";
