@@ -1,6 +1,6 @@
 ﻿namespace CitySecrets.Services.Interfaces
 {
-    public interface Interface
+    public interface INotificationService
     {
     }
 }

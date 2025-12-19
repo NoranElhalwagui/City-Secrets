@@ -253,12 +253,26 @@ namespace CitySecrets.Services
                 return true;
             }
 
-            public List<Review> GetFlaggedReviews()
+            public object GetFlaggedReviews(int page, int pageSize)
             {
-                return _context.Reviews
+                var query = _context.Reviews
                     .Where(r => r.IsFlagged && !r.IsDeleted)
-                    .OrderByDescending(r => r.CreatedAt)
+                    .OrderByDescending(r => r.CreatedAt);
+
+                var total = query.Count();
+                var reviews = query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
                     .ToList();
+
+                return new
+                {
+                    Data = reviews,
+                    TotalCount = total,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(total / (double)pageSize)
+                };
             }
 
             public List<Review> GetAllReviews(bool includeDeleted = false)
@@ -271,7 +285,7 @@ namespace CitySecrets.Services
 
             // ============ USER MANAGEMENT ============
 
-            public bool BanUser(int userId, string reason)
+            public bool BanUser(int userId, int adminUserId, string reason)
             {
                 var user = _context.Users.Find(userId);
                 if (user == null)
@@ -281,13 +295,13 @@ namespace CitySecrets.Services
 
                 _context.SaveChanges();
 
-                LogAction(1, "BAN", "User", userId,
+                LogAction(adminUserId, "BAN", "User", userId,
                     $"Banned user: {user.Username}. Reason: {reason}");
 
                 return true;
             }
 
-            public bool UnbanUser(int userId)
+            public bool UnbanUser(int userId, int adminUserId)
             {
                 var user = _context.Users.Find(userId);
                 if (user == null)
@@ -297,7 +311,7 @@ namespace CitySecrets.Services
 
                 _context.SaveChanges();
 
-                LogAction(1, "UNBAN", "User", userId, $"Unbanned user: {user.Username}");
+                LogAction(adminUserId, "UNBAN", "User", userId, $"Unbanned user: {user.Username}");
 
                 return true;
             }
@@ -334,9 +348,41 @@ namespace CitySecrets.Services
                 return true;
             }
 
-            public List<User> GetAllUsers()
+            public object GetAllUsers(int page, int pageSize, string? searchTerm, bool? isActive)
             {
-                return _context.Users.Where(u => !u.IsDeleted).ToList();
+                var query = _context.Users.Where(u => !u.IsDeleted);
+
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    var term = searchTerm.ToLower();
+                    query = query.Where(u => 
+                        u.Username.ToLower().Contains(term) || 
+                        u.Email.ToLower().Contains(term) ||
+                        (u.FullName != null && u.FullName.ToLower().Contains(term)));
+                }
+
+                // Apply active filter
+                if (isActive.HasValue)
+                {
+                    query = query.Where(u => u.IsActive == isActive.Value);
+                }
+
+                var total = query.Count();
+                var users = query
+                    .OrderByDescending(u => u.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                return new
+                {
+                    Data = users,
+                    TotalCount = total,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(total / (double)pageSize)
+                };
             }
 
             // ============ STATISTICS ============
@@ -367,6 +413,249 @@ namespace CitySecrets.Services
                     .OrderByDescending(log => log.CreatedAt)
                     .Take(count)
                     .ToList();
+            }
+
+            // ============ PENDING PLACES ============
+
+            public object GetPendingPlaces(int page, int pageSize)
+            {
+                var query = _context.Place
+                    .Where(p => !p.IsVerified && !p.IsDeleted)
+                    .OrderByDescending(p => p.CreatedAt);
+
+                var total = query.Count();
+                var places = query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                return new
+                {
+                    Data = places,
+                    TotalCount = total,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(total / (double)pageSize)
+                };
+            }
+
+            public bool VerifyPlace(int placeId, int adminUserId)
+            {
+                var place = _context.Place.Find(placeId);
+                if (place == null || place.IsDeleted)
+                    return false;
+
+                place.IsVerified = true;
+                place.UpdatedAt = DateTime.UtcNow;
+
+                _context.SaveChanges();
+
+                LogAction(adminUserId, "VERIFY", "Place", placeId, 
+                    $"Verified place: {place.Name}");
+
+                return true;
+            }
+
+            // ============ LOGS & ANALYTICS ============
+
+            public object GetLogs(int page, int pageSize, string? actionType, 
+                DateTime? startDate, DateTime? endDate)
+            {
+                var query = _context.AdminActionLogs.AsQueryable();
+
+                // Apply filters
+                if (!string.IsNullOrWhiteSpace(actionType))
+                {
+                    query = query.Where(log => log.ActionType == actionType);
+                }
+
+                if (startDate.HasValue)
+                {
+                    query = query.Where(log => log.CreatedAt >= startDate.Value);
+                }
+
+                if (endDate.HasValue)
+                {
+                    query = query.Where(log => log.CreatedAt <= endDate.Value);
+                }
+
+                var total = query.Count();
+                var logs = query
+                    .OrderByDescending(log => log.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                return new
+                {
+                    Data = logs,
+                    TotalCount = total,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(total / (double)pageSize)
+                };
+            }
+
+            public object GetAnalytics(DateTime start, DateTime end)
+            {
+                var places = _context.Place
+                    .Where(p => p.CreatedAt >= start && p.CreatedAt <= end);
+                
+                var reviews = _context.Reviews
+                    .Where(r => r.CreatedAt >= start && r.CreatedAt <= end);
+                
+                var users = _context.Users
+                    .Where(u => u.CreatedAt >= start && u.CreatedAt <= end);
+
+                var placeViews = _context.PlaceViews
+                    .Where(pv => pv.ViewedAt >= start && pv.ViewedAt <= end);
+
+                return new
+                {
+                    Period = new { Start = start, End = end },
+                    
+                    Places = new
+                    {
+                        Total = places.Count(),
+                        Verified = places.Count(p => p.IsVerified),
+                        HiddenGems = places.Count(p => p.IsHiddenGem),
+                        ByCategory = places
+                            .GroupBy(p => p.CategoryId)
+                            .Select(g => new { CategoryId = g.Key, Count = g.Count() })
+                            .ToList()
+                    },
+                    
+                    Reviews = new
+                    {
+                        Total = reviews.Count(),
+                        Approved = reviews.Count(r => r.IsApproved),
+                        Flagged = reviews.Count(r => r.IsFlagged),
+                        AverageRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0
+                    },
+                    
+                    Users = new
+                    {
+                        NewUsers = users.Count(),
+                        ActiveUsers = users.Count(u => u.IsActive),
+                        TotalUsers = _context.Users.Count(u => !u.IsDeleted)
+                    },
+                    
+                    Engagement = new
+                    {
+                        TotalViews = placeViews.Count(),
+                        UniqueVisitors = placeViews.Select(pv => pv.UserId).Distinct().Count(),
+                        AverageViewDuration = placeViews.Any() 
+                            ? placeViews.Average(pv => pv.DurationSeconds ?? 0) 
+                            : 0
+                    }
+                };
+            }
+
+            // ============ BULK OPERATIONS ============
+
+            public int BulkDeletePlaces(List<int> placeIds, int adminUserId)
+            {
+                var places = _context.Place
+                    .Where(p => placeIds.Contains(p.PlaceId) && !p.IsDeleted)
+                    .ToList();
+
+                foreach (var place in places)
+                {
+                    place.IsDeleted = true;
+                    place.IsActive = false;
+                    place.UpdatedAt = DateTime.UtcNow;
+                }
+
+                _context.SaveChanges();
+
+                LogAction(adminUserId, "BULK_DELETE", "Place", null, 
+                    $"Bulk deleted {places.Count} places");
+
+                return places.Count;
+            }
+
+            public int BulkApproveReviews(List<int> reviewIds, int adminUserId)
+            {
+                var reviews = _context.Reviews
+                    .Where(r => reviewIds.Contains(r.ReviewId) && !r.IsDeleted)
+                    .ToList();
+
+                foreach (var review in reviews)
+                {
+                    review.IsApproved = true;
+                    review.IsFlagged = false;
+                    review.UpdatedAt = DateTime.UtcNow;
+                }
+
+                _context.SaveChanges();
+
+                LogAction(adminUserId, "BULK_APPROVE", "Review", null, 
+                    $"Bulk approved {reviews.Count} reviews");
+
+                return reviews.Count;
+            }
+
+            // ============ SYSTEM HEALTH ============
+
+            public object GetSystemHealth()
+            {
+                var dbConnectionOk = false;
+                try
+                {
+                    // Test database connection
+                    var testQuery = _context.Users.Take(1).ToList();
+                    dbConnectionOk = true;
+                }
+                catch
+                {
+                    dbConnectionOk = false;
+                }
+
+                var now = DateTime.UtcNow;
+                var last24Hours = now.AddHours(-24);
+                var last7Days = now.AddDays(-7);
+
+                return new
+                {
+                    Status = dbConnectionOk ? "Healthy" : "Unhealthy",
+                    Timestamp = now,
+                    
+                    Database = new
+                    {
+                        Connected = dbConnectionOk,
+                        TotalRecords = new
+                        {
+                            Places = _context.Place.Count(),
+                            Users = _context.Users.Count(),
+                            Reviews = _context.Reviews.Count(),
+                            Categories = _context.Categories.Count()
+                        }
+                    },
+                    
+                    Activity = new
+                    {
+                        Last24Hours = new
+                        {
+                            NewPlaces = _context.Place.Count(p => p.CreatedAt >= last24Hours),
+                            NewReviews = _context.Reviews.Count(r => r.CreatedAt >= last24Hours),
+                            NewUsers = _context.Users.Count(u => u.CreatedAt >= last24Hours),
+                            AdminActions = _context.AdminActionLogs.Count(a => a.CreatedAt >= last24Hours)
+                        },
+                        Last7Days = new
+                        {
+                            NewPlaces = _context.Place.Count(p => p.CreatedAt >= last7Days),
+                            NewReviews = _context.Reviews.Count(r => r.CreatedAt >= last7Days),
+                            NewUsers = _context.Users.Count(u => u.CreatedAt >= last7Days)
+                        }
+                    },
+                    
+                    Issues = new
+                    {
+                        PendingPlaces = _context.Place.Count(p => !p.IsVerified && !p.IsDeleted),
+                        FlaggedReviews = _context.Reviews.Count(r => r.IsFlagged && !r.IsDeleted),
+                        InactiveUsers = _context.Users.Count(u => !u.IsActive && !u.IsDeleted)
+                    }
+                };
             }
 
             // ============ HELPER METHODS ============
