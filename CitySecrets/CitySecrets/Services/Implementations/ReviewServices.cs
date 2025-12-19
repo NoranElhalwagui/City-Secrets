@@ -76,7 +76,7 @@ namespace CitySecrets.Services.Implementations
 
         public Task<Review> GetReviewStatisticsAsync(int placeId)
         {
-            return Task.FromResult(result: new Review());
+            return Task.FromResult(result: new Review { Comment = "" });
         }
     }
 }

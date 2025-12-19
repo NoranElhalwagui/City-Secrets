@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.NetworkInformation;
 using CitySecrets.Models;
 using CitySecrets.Services;
+using CitySecrets.DTOs;
+using System.Security.Claims;
 
 namespace CitySecrets.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AdminOnly")]
     public class AdminController : ControllerBase
     {
         private readonly AdminService _adminService;
@@ -16,8 +19,170 @@ namespace CitySecrets.Controllers
             _adminService = adminService;
         }
 
-        // ============ PLACE ENDPOINTS ============
-        
+        /// <summary>
+        /// Get dashboard statistics for admin panel
+        /// </summary>
+        [HttpGet("dashboard")]
+        [ProducesResponseType(typeof(DashboardStatsDto), 200)]
+        public IActionResult GetDashboardStats()
+        {
+            var stats = _adminService.GetDashboardStats();
+            return Ok(stats);
+        }
+
+        /// <summary>
+        /// Get paginated list of pending places awaiting verification
+        /// </summary>
+        [HttpGet("pending-places")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetPendingPlaces([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            if (page < 1 || pageSize < 1 || pageSize > 100)
+                return BadRequest(new { message = "Invalid pagination parameters" });
+
+            var places = _adminService.GetPendingPlaces(page, pageSize);
+            return Ok(places);
+        }
+
+        /// <summary>
+        /// Get paginated list of flagged reviews for moderation
+        /// </summary>
+        [HttpGet("flagged-reviews")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetFlaggedReviews([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            if (page < 1 || pageSize < 1 || pageSize > 100)
+                return BadRequest(new { message = "Invalid pagination parameters" });
+
+            var reviews = _adminService.GetFlaggedReviews(page, pageSize);
+            return Ok(reviews);
+        }
+
+        /// <summary>
+        /// Ban a user from the platform
+        /// </summary>
+        [HttpPost("users/{id}/ban")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult BanUser(int id, [FromBody] BanRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var adminUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var result = _adminService.BanUser(id, adminUserId, request.Reason);
+            
+            if (!result)
+                return NotFound(new { message = "User not found" });
+            
+            return Ok(new { message = "User banned successfully", userId = id });
+        }
+
+        /// <summary>
+        /// Unban a previously banned user
+        /// </summary>
+        [HttpPost("users/{id}/unban")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult UnbanUser(int id)
+        {
+            var adminUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var result = _adminService.UnbanUser(id, adminUserId);
+            
+            if (!result)
+                return NotFound(new { message = "User not found" });
+            
+            return Ok(new { message = "User unbanned successfully", userId = id });
+        }
+
+        /// <summary>
+        /// Get paginated admin action logs with optional filtering
+        /// </summary>
+        [HttpGet("logs")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetLogs(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 50,
+            [FromQuery] string? actionType = null,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
+        {
+            if (page < 1 || pageSize < 1 || pageSize > 100)
+                return BadRequest(new { message = "Invalid pagination parameters" });
+
+            var logs = _adminService.GetLogs(page, pageSize, actionType, startDate, endDate);
+            return Ok(logs);
+        }
+
+        /// <summary>
+        /// Get analytics data for a specified date range
+        /// </summary>
+        [HttpGet("analytics")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetAnalytics(
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
+        {
+            var start = startDate ?? DateTime.UtcNow.AddDays(-30);
+            var end = endDate ?? DateTime.UtcNow;
+            
+            if (end < start)
+                return BadRequest(new { message = "End date must be after start date" });
+            
+            if ((end - start).TotalDays > 365)
+                return BadRequest(new { message = "Date range cannot exceed 365 days" });
+            
+            var analytics = _adminService.GetAnalytics(start, end);
+            return Ok(analytics);
+        }
+
+        /// <summary>
+        /// Get all users with pagination and optional search/filter
+        /// </summary>
+        [HttpGet("users")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetAllUsers(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] string? searchTerm = null,
+            [FromQuery] bool? isActive = null)
+        {
+            if (page < 1 || pageSize < 1 || pageSize > 100)
+                return BadRequest(new { message = "Invalid pagination parameters" });
+
+            var users = _adminService.GetAllUsers(page, pageSize, searchTerm, isActive);
+            return Ok(users);
+        }
+
+        [HttpPost("places/bulk-delete")]
+        public IActionResult BulkDeletePlaces([FromBody] BulkDeleteRequest request)
+        {
+            var adminUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var count = _adminService.BulkDeletePlaces(request.PlaceIds, adminUserId);
+            return Ok(new { message = $"{count} places deleted successfully", count });
+        }
+
+        [HttpPost("reviews/bulk-approve")]
+        public IActionResult BulkApproveReviews([FromBody] BulkApproveRequest request)
+        {
+            var adminUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var count = _adminService.BulkApproveReviews(request.ReviewIds, adminUserId);
+            return Ok(new { message = $"{count} reviews approved successfully", count });
+        }
+
+        [HttpGet("health")]
+        public IActionResult GetSystemHealth()
+        {
+            var health = _adminService.GetSystemHealth();
+            return Ok(health);
+        }
+
         [HttpGet("places")]
         public IActionResult GetAllPlaces([FromQuery] bool includeDeleted = false)
         {
@@ -72,6 +237,18 @@ namespace CitySecrets.Controllers
             return Ok(new { message = "Place restored successfully" });
         }
 
+        [HttpPost("places/{id}/verify")]
+        public IActionResult VerifyPlace(int id)
+        {
+            var adminUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var result = _adminService.VerifyPlace(id, adminUserId);
+            
+            if (!result)
+                return NotFound("Place not found");
+            
+            return Ok(new { message = "Place verified successfully" });
+        }
+
         [HttpPost("places/{id}/hidden-gem")]
         public IActionResult SetHiddenGem(int id, [FromBody] HiddenGemRequest request)
         {
@@ -82,8 +259,6 @@ namespace CitySecrets.Controllers
             return Ok(new { message = "Hidden gem status updated" });
         }
 
-        // ============ CATEGORY ENDPOINTS ============
-        
         [HttpGet("categories")]
         public IActionResult GetAllCategories()
         {
@@ -125,19 +300,10 @@ namespace CitySecrets.Controllers
             }
         }
 
-        // ============ REVIEW ENDPOINTS ============
-        
         [HttpGet("reviews")]
         public IActionResult GetAllReviews([FromQuery] bool includeDeleted = false)
         {
             var reviews = _adminService.GetAllReviews(includeDeleted);
-            return Ok(reviews);
-        }
-
-        [HttpGet("reviews/flagged")]
-        public IActionResult GetFlaggedReviews()
-        {
-            var reviews = _adminService.GetFlaggedReviews();
             return Ok(reviews);
         }
 
@@ -171,35 +337,6 @@ namespace CitySecrets.Controllers
             return Ok(new { message = "Review deleted" });
         }
 
-        // ============ USER ENDPOINTS ============
-        
-        [HttpGet("users")]
-        public IActionResult GetAllUsers()
-        {
-            var users = _adminService.GetAllUsers();
-            return Ok(users);
-        }
-
-        [HttpPost("users/{id}/ban")]
-        public IActionResult BanUser(int id, [FromBody] BanRequest request)
-        {
-            var result = _adminService.BanUser(id, request.Reason);
-            if (!result)
-                return NotFound("User not found");
-            
-            return Ok(new { message = "User banned" });
-        }
-
-        [HttpPost("users/{id}/unban")]
-        public IActionResult UnbanUser(int id)
-        {
-            var result = _adminService.UnbanUser(id);
-            if (!result)
-                return NotFound("User not found");
-            
-            return Ok(new { message = "User unbanned" });
-        }
-
         [HttpPost("users/{id}/make-admin")]
         public IActionResult MakeAdmin(int id)
         {
@@ -219,26 +356,8 @@ namespace CitySecrets.Controllers
             
             return Ok(new { message = "User demoted from admin" });
         }
-
-        // ============ STATISTICS ENDPOINTS ============
-        
-        [HttpGet("stats")]
-        public IActionResult GetStats()
-        {
-            var stats = _adminService.GetDashboardStats();
-            return Ok(stats);
-        }
-
-        [HttpGet("logs")]
-        public IActionResult GetLogs([FromQuery] int count = 50)
-        {
-            var logs = _adminService.GetRecentActions(count);
-            return Ok(logs);
-        }
     }
 
-    // ============ REQUEST MODELS ============
-    
     public class HiddenGemRequest
     {
         public bool IsHiddenGem { get; set; }
@@ -253,5 +372,15 @@ namespace CitySecrets.Controllers
     public class BanRequest
     {
         public string Reason { get; set; } = "";
+    }
+
+    public class BulkDeleteRequest
+    {
+        public List<int> PlaceIds { get; set; } = new();
+    }
+
+    public class BulkApproveRequest
+    {
+        public List<int> ReviewIds { get; set; } = new();
     }
 }
