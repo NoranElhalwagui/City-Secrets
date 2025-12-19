@@ -184,7 +184,7 @@ namespace CitySecrets.Controllers
         /// Create a new review for a place
         /// </summary>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "VerifiedUser")]  // 🔒 Only verified users can write reviews (blocks spam/fake accounts)
         [ProducesResponseType(typeof(ReviewDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]

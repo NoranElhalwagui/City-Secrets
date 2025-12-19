@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CitySecrets.Services;
+using CitySecrets.Services.Interfaces;
 using CitySecrets.DTOs;
 using System.Security.Claims;
 
@@ -14,10 +15,10 @@ namespace CitySecrets.Controllers
     public class AuthController : ControllerBase
     {
         // Connection to the auth service that handles passwords, tokens, etc.
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
         
         // Constructor: Sets up the auth service
-        public AuthController(AuthService authService)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
@@ -47,9 +48,11 @@ namespace CitySecrets.Controllers
         }
 
         // 🔓 POST: api/auth/login
+        // 🔓 POST: api/auth/login
         // What it does: Logs in an existing user
         // Needs: email and password
         // Returns: User info + access token (like a key to use the app)
+        // Security: Tracks failed attempts, locks account after 5 failures
         /// <summary>
         /// Login with email and password
         /// </summary>
@@ -60,20 +63,24 @@ namespace CitySecrets.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // 🛡️ Add IP address and user agent for security tracking
+            request.IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            request.UserAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+
             // Try to login
             var result = _authService.Login(request);
-            // If login failed (wrong password, email not found, etc.)
+            // If login failed (wrong password, email not found, account locked, etc.)
             if (!result.Success)
                 return Unauthorized(new { message = result.Message });
             
-            // Success! Send back user info and token to access the app
+            // Success! Send back user info and tokens to access the app
             return Ok(result);
         }
 
         // 🔄 POST: api/auth/refresh-token
         // What it does: Gets a new access token when the old one expires
-        // Why: Tokens expire after some time for security, this renews it
-        // Needs: refresh token (longer-lasting token)
+        // Why: Tokens expire after 24 hours, this renews without re-login
+        // Needs: refresh token (lasts 30 days)
         /// <summary>
         /// Refresh access token using refresh token
         /// </summary>
@@ -88,7 +95,7 @@ namespace CitySecrets.Controllers
             var result = _authService.RefreshToken(request.RefreshToken);
             // If refresh token is invalid or expired
             if (!result.Success)
-                return Unauthorized(new { message = "Invalid refresh token" });
+                return Unauthorized(new { message = result.Message });
             
             // Success! Send back new access token
             return Ok(result);
@@ -98,6 +105,7 @@ namespace CitySecrets.Controllers
         // What it does: Confirms user's email address
         // Why: Makes sure the email is real and belongs to them
         // Needs: verification token (sent to their email)
+        // Note: Check email for verification link after registration
         /// <summary>
         /// Verify email address with token
         /// </summary>
@@ -108,16 +116,17 @@ namespace CitySecrets.Controllers
             var result = _authService.VerifyEmail(request.Token);
             // If token is invalid or expired
             if (!result)
-                return BadRequest(new { message = "Invalid or expired verification token" });
+                return BadRequest(new { message = "Invalid or expired verification token. Please request a new one." });
             
-            // Success! Email is verified
-            return Ok(new { message = "Email verified successfully" });
+            // Success! Email is verified, user can now write reviews
+            return Ok(new { message = "Email verified successfully! You can now write reviews." });
         }
 
         // 🔑 POST: api/auth/forgot-password
         // What it does: Sends a password reset link to user's email
         // Why: Helps users who forgot their password
         // Needs: email address
+        // Security: Doesn't reveal if email exists
         /// <summary>
         /// Request password reset link
         /// </summary>
@@ -130,13 +139,16 @@ namespace CitySecrets.Controllers
 
             // Send reset link if email exists (doesn't reveal if email exists for security)
             _authService.ForgotPassword(request.Email);
-            return Ok(new { message = "If the email exists, a reset link has been sent" });
+            
+            // Always return success (even if email doesn't exist) for security
+            return Ok(new { message = "If the email exists, a password reset link has been sent. Check your inbox!" });
         }
 
         // 🔄 POST: api/auth/reset-password
         // What it does: Sets a new password using reset token
         // Why: Allows user to create new password after forgot-password
         // Needs: reset token (from email) + new password
+        // Link expires: After 1 hour
         /// <summary>
         /// Reset password with token
         /// </summary>
@@ -151,10 +163,10 @@ namespace CitySecrets.Controllers
             var result = _authService.ResetPassword(request);
             // If token is invalid or expired
             if (!result)
-                return BadRequest(new { message = "Invalid or expired reset token" });
+                return BadRequest(new { message = "Invalid or expired reset token. Please request a new password reset." });
             
-            // Success! Password changed
-            return Ok(new { message = "Password reset successfully" });
+            // Success! Password changed, all devices logged out for security
+            return Ok(new { message = "Password reset successfully! Please login with your new password." });
         }
 
         // 👤 GET: api/auth/me

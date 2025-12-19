@@ -1,7 +1,11 @@
+using System.Text;
 using CitySecrets.Services.Implementations;
 using CitySecrets.Services.Interfaces;
+using CitySecrets.Services;
 using Microsoft.EntityFrameworkCore;
-using CitySecrets.Models; // Adjust if your User model is in a different namespace
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using CitySecrets.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +16,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register Services
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<CitySecrets.Services.Interfaces.IAuthService, CitySecrets.Services.AuthService>();
+builder.Services.AddScoped<CitySecrets.Services.Interfaces.IAdminService, CitySecrets.Services.AdminService>();
 builder.Services.AddScoped<CitySecrets.Services.Interfaces.IPlaceService, CitySecrets.Services.Implementations.PlaceService>();
 builder.Services.AddScoped<CitySecrets.Services.Interfaces.IFavoriteService, CitySecrets.Services.Implementations.FavoriteService>();
 builder.Services.AddScoped<CitySecrets.Services.Interfaces.IReviewService, CitySecrets.Services.Implementations.ReviewService>();
@@ -46,7 +50,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+// 🛡️ AUTHORIZATION POLICIES
+// These control who can access certain features
+// "AdminOnly" = Only admin users can access
+// "VerifiedUser" = Only users with verified email can access
+builder.Services.AddAuthorization(options =>
+{
+    // Admin-only endpoints (like delete user, approve places)
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Admin"));
+    
+    // Verified users only (like write reviews, add places)
+    options.AddPolicy("VerifiedUser", policy =>
+        policy.RequireClaim("EmailVerified", "True"));
+});
 
 // CORS
 builder.Services.AddCors(options =>

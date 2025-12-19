@@ -85,7 +85,7 @@ namespace CitySecrets.Controllers
         /// Create a new place (requires authentication)
         /// </summary>
         [HttpPost]
-        [Authorize]  // Must be logged in
+        [Authorize(Policy = "VerifiedUser")]  // 🔒 Must be logged in AND email verified (blocks spam/fake accounts)
         public async Task<IActionResult> CreatePlace([FromBody] CreatePlaceRequest request)
         {
             // Check if all required fields are filled

@@ -23,13 +23,12 @@ namespace CitySecrets.Services
             var stopwatch = Stopwatch.StartNew();
 
             // Build the search query
-            var placesQuery = _context.Places
+            var placesQuery = _context.Place
                 .Include(p => p.Category)
-                .Where(p => !p.IsDeleted && p.IsApproved &&
+                .Where(p => !p.IsDeleted && p.IsVerified &&
                     (p.Name.Contains(query) ||
                      p.Description!.Contains(query) ||
                      p.Address!.Contains(query) ||
-                     p.City!.Contains(query) ||
                      p.Category!.Name.Contains(query)))
                 .AsQueryable();
 
@@ -44,18 +43,18 @@ namespace CitySecrets.Services
                     PlaceId = p.PlaceId,
                     Name = p.Name,
                     Description = p.Description,
-                    MainImageUrl = p.MainImageUrl,
+                    MainImageUrl = p.Images!.FirstOrDefault()!.ImageUrl,
                     CategoryName = p.Category!.Name,
                     CategoryId = p.CategoryId,
-                    PriceRange = p.PriceRange,
+                    PriceRange = p.AveragePrice > 0 ? p.AveragePrice : null,
                     AverageRating = p.Reviews!.Any() ? p.Reviews.Average(r => r.Rating) : 0,
                     ReviewCount = p.Reviews!.Count(),
                     Latitude = p.Latitude,
                     Longitude = p.Longitude,
                     IsHiddenGem = p.IsHiddenGem,
-                    IsFavorited = userId.HasValue && p.Favourites!.Any(f => f.UserId == userId.Value),
+                    IsFavorited = userId.HasValue && p.Favorites!.Any(f => f.UserId == userId.Value),
                     Address = p.Address,
-                    City = p.City
+                    City = p.Address
                 })
                 .ToList();
 
@@ -83,10 +82,10 @@ namespace CitySecrets.Services
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var placesQuery = _context.Places
+            var placesQuery = _context.Place
                 .Include(p => p.Category)
                 .Include(p => p.Reviews)
-                .Where(p => !p.IsDeleted && p.IsApproved)
+                .Where(p => !p.IsDeleted && p.IsVerified)
                 .AsQueryable();
 
             // Apply filters
@@ -101,19 +100,13 @@ namespace CitySecrets.Services
                 placesQuery = placesQuery.Where(p => p.CategoryId == request.CategoryId);
 
             if (request.MinPrice.HasValue)
-                placesQuery = placesQuery.Where(p => p.PriceRange >= request.MinPrice);
+                placesQuery = placesQuery.Where(p => p.AveragePrice >= request.MinPrice);
 
             if (request.MaxPrice.HasValue)
-                placesQuery = placesQuery.Where(p => p.PriceRange <= request.MaxPrice);
+                placesQuery = placesQuery.Where(p => p.AveragePrice <= request.MaxPrice);
 
             if (request.IsHiddenGem.HasValue)
                 placesQuery = placesQuery.Where(p => p.IsHiddenGem == request.IsHiddenGem);
-
-            if (!string.IsNullOrWhiteSpace(request.City))
-                placesQuery = placesQuery.Where(p => p.City == request.City);
-
-            if (!string.IsNullOrWhiteSpace(request.Country))
-                placesQuery = placesQuery.Where(p => p.Country == request.Country);
 
             // Location-based filtering
             List<PlaceSearchResultDto> places;
@@ -125,7 +118,7 @@ namespace CitySecrets.Services
                     {
                         Place = p,
                         Distance = CalculateDistance(request.Latitude.Value, request.Longitude.Value,
-                            p.Latitude ?? 0, p.Longitude ?? 0)
+                            p.Latitude, p.Longitude)
                     })
                     .Where(x => x.Distance <= request.RadiusKm.Value)
                     .Select(x => MapToSearchResult(x.Place, x.Distance, userId))
@@ -162,7 +155,7 @@ namespace CitySecrets.Services
             if (userId.HasValue)
             {
                 SaveSearchHistory(userId.Value, request.Query ?? "", request.CategoryId,
-                    request.Latitude, request.Longitude, Newtonsoft.Json.JsonConvert.SerializeObject(request), totalResults);
+                    request.Latitude, request.Longitude, System.Text.Json.JsonSerializer.Serialize(request), totalResults);
             }
 
             stopwatch.Stop();
@@ -184,8 +177,8 @@ namespace CitySecrets.Services
             var suggestions = new List<SearchSuggestionDto>();
 
             // Place name suggestions
-            var placeSuggestions = _context.Places
-                .Where(p => !p.IsDeleted && p.IsApproved && p.Name.Contains(query))
+            var placeSuggestions = _context.Place
+                .Where(p => !p.IsDeleted && p.IsVerified && p.Name.Contains(query))
                 .Take(limit / 2)
                 .Select(p => new SearchSuggestionDto
                 {
@@ -207,7 +200,7 @@ namespace CitySecrets.Services
                     Query = c.Name,
                     Type = "category",
                     EntityId = c.CategoryId,
-                    Icon = c.Icon ?? "🏷️"
+                    Icon = c.IconUrl ?? "🏷️"
                 })
                 .ToList();
 
@@ -328,17 +321,17 @@ namespace CitySecrets.Services
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var placesQuery = _context.Places
+            var placesQuery = _context.Place
                 .Include(p => p.Category)
                 .Include(p => p.Reviews)
-                .Where(p => !p.IsDeleted && p.IsApproved)
+                .Where(p => !p.IsDeleted && p.IsVerified)
                 .ToList(); // Load to memory for distance calculation
 
             var nearbyPlaces = placesQuery
                 .Select(p => new
                 {
                     Place = p,
-                    Distance = CalculateDistance(latitude, longitude, p.Latitude ?? 0, p.Longitude ?? 0)
+                    Distance = CalculateDistance(latitude, longitude, p.Latitude, p.Longitude)
                 })
                 .Where(x => x.Distance <= radiusKm)
                 .ToList();
@@ -382,19 +375,19 @@ namespace CitySecrets.Services
                 {
                     CategoryId = c.CategoryId,
                     Name = c.Name,
-                    PlaceCount = c.Places!.Count(p => !p.IsDeleted && p.IsApproved)
+                    PlaceCount = c.Places!.Count(p => !p.IsDeleted && p.IsVerified)
                 })
                 .OrderByDescending(c => c.PlaceCount)
                 .ToList();
 
-            var prices = _context.Places
-                .Where(p => !p.IsDeleted && p.IsApproved && p.PriceRange.HasValue)
-                .Select(p => p.PriceRange!.Value)
+            var prices = _context.Place
+                .Where(p => !p.IsDeleted && p.IsVerified && p.AveragePrice > 0)
+                .Select(p => p.AveragePrice)
                 .ToList();
 
-            var cities = _context.Places
-                .Where(p => !p.IsDeleted && p.IsApproved && !string.IsNullOrEmpty(p.City))
-                .Select(p => p.City!)
+            var cities = _context.Place
+                .Where(p => !p.IsDeleted && p.IsVerified && !string.IsNullOrEmpty(p.Address))
+                .Select(p => p.Address!)
                 .Distinct()
                 .ToList();
 
@@ -435,19 +428,19 @@ namespace CitySecrets.Services
                 PlaceId = place.PlaceId,
                 Name = place.Name,
                 Description = place.Description,
-                MainImageUrl = place.MainImageUrl,
+                MainImageUrl = place.Images?.FirstOrDefault()?.ImageUrl,
                 CategoryName = place.Category?.Name,
                 CategoryId = place.CategoryId,
-                PriceRange = place.PriceRange,
+                PriceRange = place.AveragePrice > 0 ? place.AveragePrice : null,
                 AverageRating = place.Reviews?.Any() == true ? place.Reviews.Average(r => r.Rating) : 0,
                 ReviewCount = place.Reviews?.Count ?? 0,
                 Latitude = place.Latitude,
                 Longitude = place.Longitude,
                 DistanceKm = distance.HasValue ? Math.Round(distance.Value, 2) : null,
                 IsHiddenGem = place.IsHiddenGem,
-                IsFavorited = userId.HasValue && (place.Favourites?.Any(f => f.UserId == userId.Value) ?? false),
+                IsFavorited = userId.HasValue && (place.Favorites?.Any(f => f.UserId == userId.Value) ?? false),
                 Address = place.Address,
-                City = place.City
+                City = place.Address
             };
         }
 
