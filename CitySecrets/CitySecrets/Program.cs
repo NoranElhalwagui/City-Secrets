@@ -1,3 +1,5 @@
+using CitySecrets.Services.Implementations;
+using CitySecrets.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +20,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddScoped<IPlaceService, PlaceService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
