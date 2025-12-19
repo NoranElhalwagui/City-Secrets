@@ -17,6 +17,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<CitySecrets.Services.Interfaces.IPlaceService, CitySecrets.Services.Implementations.PlaceService>();
+builder.Services.AddScoped<CitySecrets.Services.Interfaces.IFavoriteService, CitySecrets.Services.Implementations.FavoriteService>();
+builder.Services.AddScoped<CitySecrets.Services.Interfaces.IReviewService, CitySecrets.Services.Implementations.ReviewService>();
+builder.Services.AddScoped<CitySecrets.Services.Interfaces.IRecommendationService, CitySecrets.Services.Implementations.RecommendationService>();
 
 // JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLong123456";
