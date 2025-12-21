@@ -5,22 +5,40 @@ import { Telescope } from "lucide-react";
 import "./LoginPage.css";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
   const navigate = useNavigate();
 
+  // UI state
+  const [mode, setMode] = useState("login"); // login / register / forgot / reset
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // Form state
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
+
+  const [userName, setUserName] = useState("");
+
+  // Simulate login/register
   const handleLogin = (e) => {
     e.preventDefault();
     setLoggedIn(true);
-    const name = email.split("@")[0];
+    setUserName(email.split("@")[0]);
+  };
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    setLoggedIn(true);
     setUserName(name);
   };
 
-  const startExplore = () => {
-    navigate("/"); // go back to homepage
+  const handleReset = (e) => {
+    e.preventDefault();
+    alert(`Password reset link sent to ${resetEmail}`);
+    setMode("login");
   };
+
+  const startExplore = () => navigate("/"); // back to homepage
 
   return (
     <div className="loginpage-container">
@@ -34,24 +52,103 @@ export default function LoginPage() {
 
         {!loggedIn ? (
           <div className="login-box">
-            <h2 className="encourage-line">Join and start a journey full of new places</h2>
-            <form onSubmit={handleLogin}>
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <button type="submit">Login</button>
-            </form>
+            {mode === "login" && (
+              <>
+                <h2 className="encourage-line">Sign in and start your hidden journey</h2>
+                <form onSubmit={handleLogin}>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button type="submit">Login</button>
+                </form>
+                <div className="toggle-links">
+                  <span onClick={() => setMode("register")}>Don't have an account? Sign Up</span>
+                  <span onClick={() => setMode("forgot")}>Forgot password?</span>
+                </div>
+              </>
+            )}
+
+            {mode === "register" && (
+              <>
+                <h2 className="encourage-line">Join and start a journey full of new places</h2>
+                <form onSubmit={handleRegister}>
+                  <input
+                    type="text"
+                    placeholder="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button type="submit">Register</button>
+                </form>
+                <div className="toggle-links">
+                  <span onClick={() => setMode("login")}>Already have an account? Sign in</span>
+                </div>
+              </>
+            )}
+
+            {mode === "forgot" && (
+              <>
+                <h2 className="encourage-line">Forgot your password?</h2>
+                <form onSubmit={() => setMode("reset")}>
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                  />
+                  <button type="submit">Send Reset Link</button>
+                </form>
+                <div className="toggle-links">
+                  <span onClick={() => setMode("login")}>Back to Login</span>
+                </div>
+              </>
+            )}
+
+            {mode === "reset" && (
+              <>
+                <h2 className="encourage-line">Reset your password</h2>
+                <form onSubmit={handleReset}>
+                  <input
+                    type="password"
+                    placeholder="New password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button type="submit">Reset Password</button>
+                </form>
+                <div className="toggle-links">
+                  <span onClick={() => setMode("login")}>Back to Login</span>
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div className="welcome-box">
