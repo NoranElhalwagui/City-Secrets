@@ -82,6 +82,21 @@
   background: orange;
 }
 
+.toggle-links {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.toggle-links span {
+  color: #ffae42;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .welcome-box {
   text-align: center;
 }

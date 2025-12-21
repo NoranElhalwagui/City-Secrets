@@ -1,26 +1,77 @@
-// pages/LoginPage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Telescope } from "lucide-react";
 import "./LoginPage.css";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setLoggedIn(true);
-    const name = email.split("@")[0];
-    setUserName(name);
+  // UI state
+  const [mode, setMode] = useState("login"); // login / register / forgot / reset
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // Form state
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
+
+  const [userName, setUserName] = useState("");
+  const [isReturning, setIsReturning] = useState(false);
+
+  // Load users from localStorage (simulate backend)
+  const getUsers = () => {
+    const data = localStorage.getItem("users");
+    return data ? JSON.parse(data) : [];
   };
 
-  const startExplore = () => {
-    navigate("/"); // go back to homepage
+  const saveUser = (user) => {
+    const users = getUsers();
+    users.push(user);
+    localStorage.setItem("users", JSON.stringify(users));
   };
+
+  const findUserByEmail = (email) => {
+    const users = getUsers();
+    return users.find((u) => u.email === email);
+  };
+
+  // Handle login
+  const handleLogin = (e) => {
+    e.preventDefault();
+    const existingUser = findUserByEmail(email);
+    if (existingUser && existingUser.password === password) {
+      setUserName(existingUser.name);
+      setIsReturning(true);
+      setLoggedIn(true);
+    } else {
+      alert("Invalid email or password!");
+    }
+  };
+
+  // Handle register
+  const handleRegister = (e) => {
+    e.preventDefault();
+    if (findUserByEmail(email)) {
+      alert("This email is already registered. Please log in.");
+      setMode("login");
+      return;
+    }
+    saveUser({ name, email, password });
+    setUserName(name);
+    setIsReturning(false);
+    setLoggedIn(true);
+  };
+
+  // Handle password reset
+  const handleReset = (e) => {
+    e.preventDefault();
+    alert(`Password reset link sent to ${resetEmail}`);
+    setMode("login");
+  };
+
+  // Start exploring
+  const startExplore = () => navigate("/");
 
   return (
     <div className="loginpage-container">
@@ -34,30 +85,114 @@ export default function LoginPage() {
 
         {!loggedIn ? (
           <div className="login-box">
-            <h2 className="encourage-line">Join and start a journey full of new places</h2>
-            <form onSubmit={handleLogin}>
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <button type="submit">Login</button>
-            </form>
+            {mode === "login" && (
+              <>
+                <h2 className="encourage-line">Sign in and start your hidden journey</h2>
+                <form onSubmit={handleLogin}>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button type="submit">Login</button>
+                </form>
+                <div className="toggle-links">
+                  <span onClick={() => setMode("register")}>Don't have an account? Sign Up</span>
+                  <span onClick={() => setMode("forgot")}>Forgot password?</span>
+                </div>
+              </>
+            )}
+
+            {mode === "register" && (
+              <>
+                <h2 className="encourage-line">Join and start a journey full of new places</h2>
+                <form onSubmit={handleRegister}>
+                  <input
+                    type="text"
+                    placeholder="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button type="submit">Register</button>
+                </form>
+                <div className="toggle-links">
+                  <span onClick={() => setMode("login")}>Already have an account? Sign in</span>
+                </div>
+              </>
+            )}
+
+            {mode === "forgot" && (
+              <>
+                <h2 className="encourage-line">Forgot your password?</h2>
+                <form onSubmit={() => setMode("reset")}>
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                  />
+                  <button type="submit">Send Reset Link</button>
+                </form>
+                <div className="toggle-links">
+                  <span onClick={() => setMode("login")}>Back to Login</span>
+                </div>
+              </>
+            )}
+
+            {mode === "reset" && (
+              <>
+                <h2 className="encourage-line">Reset your password</h2>
+                <form onSubmit={handleReset}>
+                  <input
+                    type="password"
+                    placeholder="New password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button type="submit">Reset Password</button>
+                </form>
+                <div className="toggle-links">
+                  <span onClick={() => setMode("login")}>Back to Login</span>
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div className="welcome-box">
-            <h2>Welcome {userName}!</h2>
-            <p>We are delighted to have you in our secret family.</p>
-            <button className="start-btn" onClick={startExplore}>Start to Explore</button>
+            <h2>
+              {isReturning
+                ? `Welcome back ${userName}! Continue your exploring journey`
+                : `Welcome ${userName}! We are delighted to have you in our secret family`}
+            </h2>
+            <button className="start-btn" onClick={startExplore}>
+              Start to Explore
+            </button>
           </div>
         )}
       </div>
