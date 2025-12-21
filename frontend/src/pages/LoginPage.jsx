@@ -6,11 +6,9 @@ import "./LoginPage.css";
 export default function LoginPage() {
   const navigate = useNavigate();
 
-  // UI state
   const [mode, setMode] = useState("login"); // login / register / forgot / reset
   const [loggedIn, setLoggedIn] = useState(false);
 
-  // Form state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,8 +16,16 @@ export default function LoginPage() {
 
   const [userName, setUserName] = useState("");
   const [isReturning, setIsReturning] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  // Load users from localStorage (simulate backend)
+  // Hardcoded admin credentials
+  const adminUser = {
+    email: "Admin@gmail.com",
+    password: "121212",
+    name: "Admin",
+  };
+
+  // Local storage users (simulate backend)
   const getUsers = () => {
     const data = localStorage.getItem("users");
     return data ? JSON.parse(data) : [];
@@ -36,9 +42,19 @@ export default function LoginPage() {
     return users.find((u) => u.email === email);
   };
 
-  // Handle login
+  // Login
   const handleLogin = (e) => {
     e.preventDefault();
+
+    // Check if admin
+    if (email === adminUser.email && password === adminUser.password) {
+      setUserName(adminUser.name);
+      setIsAdmin(true);
+      setLoggedIn(true);
+      return;
+    }
+
+    // Normal user
     const existingUser = findUserByEmail(email);
     if (existingUser && existingUser.password === password) {
       setUserName(existingUser.name);
@@ -49,10 +65,10 @@ export default function LoginPage() {
     }
   };
 
-  // Handle register
+  // Register
   const handleRegister = (e) => {
     e.preventDefault();
-    if (findUserByEmail(email)) {
+    if (findUserByEmail(email) || (email === adminUser.email)) {
       alert("This email is already registered. Please log in.");
       setMode("login");
       return;
@@ -63,14 +79,13 @@ export default function LoginPage() {
     setLoggedIn(true);
   };
 
-  // Handle password reset
+  // Reset
   const handleReset = (e) => {
     e.preventDefault();
     alert(`Password reset link sent to ${resetEmail}`);
     setMode("login");
   };
 
-  // Start exploring
   const startExplore = () => navigate("/");
 
   return (
@@ -186,51 +201,27 @@ export default function LoginPage() {
         ) : (
           <div className="welcome-box">
             <h2>
-              {isReturning
+              {isAdmin
+                ? "Welcome Admin! Access your Admin Dashboard below"
+                : isReturning
                 ? `Welcome back ${userName}! Continue your exploring journey`
                 : `Welcome ${userName}! We are delighted to have you in our secret family`}
             </h2>
+
             <button className="start-btn" onClick={startExplore}>
-              Start to Explore
+              {isAdmin ? "Go to Admin Dashboard" : "Start to Explore"}
             </button>
+
+            {isAdmin && (
+              <div className="admin-dashboard">
+                <h3>Admin Dashboard</h3>
+                <p>Here you can manage users, posts, and hidden gems.</p>
+                {/* Add more admin features here */}
+              </div>
+            )}
           </div>
         )}
       </div>
-
-      <script>{`
-        const canvas = document.getElementById("particle-bg-login");
-        const ctx = canvas.getContext("2d");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const particles = [];
-        for (let i = 0; i < 100; i++) {
-          particles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            radius: Math.random() * 2 + 1,
-            dx: (Math.random() - 0.5) * 0.5,
-            dy: (Math.random() - 0.5) * 0.5
-          });
-        }
-
-        function animate() {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          particles.forEach(p => {
-            p.x += p.dx;
-            p.y += p.dy;
-            if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-            if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(255, 215, 0, 0.7)";
-            ctx.fill();
-          });
-          requestAnimationFrame(animate);
-        }
-        animate();
-      `}</script>
     </div>
   );
 }
