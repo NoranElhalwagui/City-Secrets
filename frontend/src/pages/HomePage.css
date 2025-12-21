@@ -168,3 +168,43 @@
 .star-icon {
   color: gold;
 }
+
+
+/* Quick Navigation Buttons */
+
+.nav-test {
+  margin-top: 40px;
+}
+
+.nav-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: gold;
+  opacity: 0.9;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: 10px 18px;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.nav-btn:hover {
+  background: gold;
+  color: black;
+}
+
+.nav-btn.admin {
+  border: 1px solid gold;
+}

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Telescope, Star } from "lucide-react";
 import "./HomePage.css";
 
+
 export default function HomePage() {
   const categories = ["Food", "Parks", "Museums", "Shopping"];
   const locations = ["Cairo", "Giza"];
@@ -31,6 +32,25 @@ export default function HomePage() {
 
           {/* Category Search */}
           <div className="search-section">
+                      {/* Quick Navigation (DEV TESTING) */}
+          <div className="nav-test">
+            <p className="nav-title">Quick Access</p>
+
+            <div className="nav-buttons">
+              <Link to="/profile">
+                <button className="nav-btn">Profile</button>
+              </Link>
+
+              <Link to="/explore">
+                <button className="nav-btn">Explore</button>
+              </Link>
+
+              <Link to="/admin/dashboard">
+                <button className="nav-btn admin">Admin Dashboard</button>
+              </Link>
+            </div>
+          </div>
+
             <div className="categories">
               {categories.map((cat) => (
                 <button

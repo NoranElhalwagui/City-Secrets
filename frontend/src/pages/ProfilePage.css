@@ -1,0 +1,61 @@
+/* pages/ProfilePage.css */
+
+.profile-container {
+  min-height: 100vh;
+  background: black;
+  color: white;
+  padding: 50px;
+  font-family: Arial, sans-serif;
+}
+
+.page-title {
+  font-size: 48px;
+  color: #ffae42;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 25px;
+  transition: 0.3s ease;
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.card h2 {
+  color: gold;
+  margin-bottom: 15px;
+}
+
+.card p {
+  margin-bottom: 8px;
+  opacity: 0.9;
+}
+
+.card input {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+}
+
+.card button {
+  background: gold;
+  color: black;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.card button:hover {
+  background: orange;
+}

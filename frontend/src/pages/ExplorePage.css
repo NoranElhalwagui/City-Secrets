@@ -1,0 +1,94 @@
+/* pages/ExplorePage.css */
+
+.explore-container {
+  min-height: 100vh;
+  background: black;
+  color: white;
+  padding: 50px;
+  font-family: Arial, sans-serif;
+}
+
+.page-title {
+  font-size: 48px;
+  color: #ffae42;
+  margin-bottom: 25px;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-box input,
+.search-box select {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  flex: 1;
+}
+
+.search-box button {
+  background: gold;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.filters button {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.filters button:hover {
+  background: gold;
+  color: black;
+}
+
+.places-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.place-card {
+  background: rgba(255,255,255,0.08);
+  border-radius: 15px;
+  padding: 20px;
+  transition: 0.3s;
+}
+
+.place-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255,255,255,0.12);
+}
+
+.place-card h3 {
+  color: gold;
+  margin-bottom: 8px;
+}
+
+.map-placeholder {
+  margin-top: 40px;
+  height: 200px;
+  border-radius: 15px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: gold;
+  font-weight: bold;
+}
