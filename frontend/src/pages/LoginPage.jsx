@@ -1,4 +1,3 @@
-// pages/LoginPage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Telescope } from "lucide-react";
@@ -18,27 +17,61 @@ export default function LoginPage() {
   const [resetEmail, setResetEmail] = useState("");
 
   const [userName, setUserName] = useState("");
+  const [isReturning, setIsReturning] = useState(false);
 
-  // Simulate login/register
+  // Load users from localStorage (simulate backend)
+  const getUsers = () => {
+    const data = localStorage.getItem("users");
+    return data ? JSON.parse(data) : [];
+  };
+
+  const saveUser = (user) => {
+    const users = getUsers();
+    users.push(user);
+    localStorage.setItem("users", JSON.stringify(users));
+  };
+
+  const findUserByEmail = (email) => {
+    const users = getUsers();
+    return users.find((u) => u.email === email);
+  };
+
+  // Handle login
   const handleLogin = (e) => {
     e.preventDefault();
-    setLoggedIn(true);
-    setUserName(email.split("@")[0]);
+    const existingUser = findUserByEmail(email);
+    if (existingUser && existingUser.password === password) {
+      setUserName(existingUser.name);
+      setIsReturning(true);
+      setLoggedIn(true);
+    } else {
+      alert("Invalid email or password!");
+    }
   };
 
+  // Handle register
   const handleRegister = (e) => {
     e.preventDefault();
-    setLoggedIn(true);
+    if (findUserByEmail(email)) {
+      alert("This email is already registered. Please log in.");
+      setMode("login");
+      return;
+    }
+    saveUser({ name, email, password });
     setUserName(name);
+    setIsReturning(false);
+    setLoggedIn(true);
   };
 
+  // Handle password reset
   const handleReset = (e) => {
     e.preventDefault();
     alert(`Password reset link sent to ${resetEmail}`);
     setMode("login");
   };
 
-  const startExplore = () => navigate("/"); // back to homepage
+  // Start exploring
+  const startExplore = () => navigate("/");
 
   return (
     <div className="loginpage-container">
@@ -152,9 +185,14 @@ export default function LoginPage() {
           </div>
         ) : (
           <div className="welcome-box">
-            <h2>Welcome {userName}!</h2>
-            <p>We are delighted to have you in our secret family.</p>
-            <button className="start-btn" onClick={startExplore}>Start to Explore</button>
+            <h2>
+              {isReturning
+                ? `Welcome back ${userName}! Continue your exploring journey`
+                : `Welcome ${userName}! We are delighted to have you in our secret family`}
+            </h2>
+            <button className="start-btn" onClick={startExplore}>
+              Start to Explore
+            </button>
           </div>
         )}
       </div>
