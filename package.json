@@ -9,7 +9,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "react-router-dom": "^7.11.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
