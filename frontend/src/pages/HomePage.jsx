@@ -1,24 +1,28 @@
 // pages/HomePage.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Telescope, Star } from "lucide-react";
+import { Telescope } from "lucide-react";
 import "./HomePage.css";
 
+import cairo1 from "../assets/cairo.jpg";
+import cairo2 from "../assets/backg.jpg";
+import cairo3 from "../assets/giza.jpg";
+import giza1 from "../assets/giza.jpg";
+import giza2 from "../assets/backg.jpg";
+import giza3 from "../assets/cairo.jpg";
 
 export default function HomePage() {
-  const categories = ["Food", "Parks", "Museums", "Shopping"];
-  const locations = ["Cairo", "Giza"];
-  const trendingPlaces = ["Hidden Gem 1", "Hidden Gem 2", "Hidden Gem 3", "Hidden Gem 4"];
+  const [selectedLocation, setSelectedLocation] = useState("Cairo");
 
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState(locations[0]);
+  const cairoImages = [cairo1, cairo2, cairo3, cairo1, cairo2, cairo3];
+  const gizaImages = [giza1, giza2, giza3, giza1, giza2, giza3];
 
   return (
     <div className="homepage-container">
       <canvas id="particle-bg" className="particle-bg"></canvas>
 
       <div className="homepage-content">
-        {/* Left Side */}
+        {/* LEFT SIDE */}
         <div className="left-side">
           <div className="logo">
             <Telescope size={40} className="logo-icon" />
@@ -27,73 +31,53 @@ export default function HomePage() {
 
           <h1 className="title">City Secrets</h1>
           <p className="description">
-            Explore your city’s hidden gems and trending spots with personalized recommendations.
+            Explore your city’s hidden gems and trending spots with personalized
+            recommendations.
           </p>
 
-          {/* Category Search */}
           <div className="search-section">
-                      {/* Quick Navigation (DEV TESTING) */}
-          <div className="nav-test">
-            <p className="nav-title">Quick Access</p>
-
-            <div className="nav-buttons">
-              <Link to="/profile">
-                <button className="nav-btn">Profile</button>
-              </Link>
-
-              <Link to="/explore">
-                <button className="nav-btn">Explore</button>
-              </Link>
-
-              <Link to="/admin/dashboard">
-                <button className="nav-btn admin">Admin Dashboard</button>
-              </Link>
-            </div>
-          </div>
-
-            <div className="categories">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  className={`category-btn ${selectedCategory === cat ? "active" : ""}`}
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
             <select
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
             >
-              {locations.map((loc) => (
-                <option key={loc} value={loc}>{loc}</option>
-              ))}
+              <option value="Cairo">Cairo</option>
+              <option value="Giza">Giza</option>
             </select>
-            <button className="search-btn">Search</button>
           </div>
 
-          {/* Bottom Login */}
+          {/* Login Button */}
           <div className="login-section">
-            <div className="line-text">Join our community and explore new hidden gems</div>
+            <div className="line-text">
+              Join our community and explore new hidden gems
+            </div>
             <Link to="/login">
               <button className="login-btn">
-                Login
-                <span className="arrow">→</span>
+                Login <span className="arrow">→</span>
               </button>
             </Link>
           </div>
         </div>
 
-        {/* Right Side - Trending */}
-        <div className="right-side">
-          <h2>Most Trending Places</h2>
-          <div className="trending-scroll">
-            {trendingPlaces.map((place, idx) => (
-              <div key={idx} className="trending-item">
-                {place} <Star size={16} className="star-icon" />
-              </div>
-            ))}
+        {/* RIGHT SIDE */}
+        <div className="right-side cities-side">
+          {/* Cairo Box */}
+          <div className="city-box">
+            <h2 className="city-title">Cairo Secrets</h2>
+            <div className="image-grid">
+              {cairoImages.map((img, i) => (
+                <img key={i} src={img} alt="Cairo secret" />
+              ))}
+            </div>
+          </div>
+
+          {/* Giza Box */}
+          <div className="city-box">
+            <h2 className="city-title">Giza Secrets</h2>
+            <div className="image-grid">
+              {gizaImages.map((img, i) => (
+                <img key={i} src={img} alt="Giza secret" />
+              ))}
+            </div>
           </div>
         </div>
       </div>
