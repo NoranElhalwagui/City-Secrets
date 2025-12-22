@@ -1,0 +1,19 @@
+{
+  "name": "mock-backend",
+  "version": "1.0.0",
+  "description": "Mock backend for City Secrets app",
+  "main": "mock-backend.js",
+  "scripts": {
+    "start": "node mock-backend.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "react-router-dom": "^7.11.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1"
+  }
+}

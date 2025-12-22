@@ -1,0 +1,129 @@
+/* pages/LoginPage.css */
+.loginpage-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: black;
+  color: white;
+  overflow: hidden;
+  font-family: 'Arial', sans-serif;
+}
+
+.particle-bg-login {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.loginpage-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.logo-text {
+  font-size: 24px;
+  color: gold;
+  font-weight: bold;
+}
+
+.login-box {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 300px;
+}
+
+.encourage-line {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #ffae42;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+
+.login-box button {
+  padding: 12px 25px;
+  margin-top: 10px;
+  background: gold;
+  color: black;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+.login-box button:hover {
+  background: orange;
+}
+
+.toggle-links {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.toggle-links span {
+  color: #ffae42;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.welcome-box {
+  text-align: center;
+}
+
+.welcome-box h2 {
+  font-size: 28px;
+  color: #ffae42;
+  margin-bottom: 10px;
+}
+
+.welcome-box p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.start-btn {
+  padding: 12px 30px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background: gold;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.start-btn:hover {
+  background: orange;
+}
