@@ -1,5 +1,5 @@
 // pages/HomePage.jsx
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { Telescope } from "lucide-react";
 import "./HomePage.css";
@@ -12,8 +12,6 @@ import giza2 from "../assets/backg.jpg";
 import giza3 from "../assets/cairo.jpg";
 
 export default function HomePage() {
-  const [selectedLocation, setSelectedLocation] = useState("Cairo");
-
   const cairoImages = [cairo1, cairo2, cairo3, cairo1, cairo2, cairo3];
   const gizaImages = [giza1, giza2, giza3, giza1, giza2, giza3];
 
@@ -25,30 +23,23 @@ export default function HomePage() {
         {/* LEFT SIDE */}
         <div className="left-side">
           <div className="logo">
-            <Telescope size={40} className="logo-icon" />
+            <Telescope size={50} className="logo-icon" />
             <span className="logo-text">City Secrets</span>
           </div>
 
-          <h1 className="title">City Secrets</h1>
+          <h1 className="title">Discover Hidden Gems</h1>
           <p className="description">
-            Explore your city’s hidden gems and trending spots with personalized
-            recommendations.
+            Tired of the usual tourist spots? Dive into your city's secret corners, 
+            uncover local treasures, and explore places that deserve the hype.
           </p>
 
-          <div className="search-section">
-            <select
-              value={selectedLocation}
-              onChange={(e) => setSelectedLocation(e.target.value)}
-            >
-              <option value="Cairo">Cairo</option>
-              <option value="Giza">Giza</option>
-            </select>
-          </div>
+          <p className="tagline">
+            ✨ Every street has a story. Every café has a secret. Let us show you the unseen!
+          </p>
 
-          {/* Login Button */}
           <div className="login-section">
             <div className="line-text">
-              Join our community and explore new hidden gems
+              Join our family to explore hidden spots or add your own secret place! 🌟
             </div>
             <Link to="/login">
               <button className="login-btn">
@@ -65,7 +56,7 @@ export default function HomePage() {
             <h2 className="city-title">Cairo Secrets</h2>
             <div className="image-grid">
               {cairoImages.map((img, i) => (
-                <img key={i} src={img} alt="Cairo secret" />
+                <img key={i} src={img} alt="Cairo secret" className="city-image" />
               ))}
             </div>
           </div>
@@ -75,7 +66,7 @@ export default function HomePage() {
             <h2 className="city-title">Giza Secrets</h2>
             <div className="image-grid">
               {gizaImages.map((img, i) => (
-                <img key={i} src={img} alt="Giza secret" />
+                <img key={i} src={img} alt="Giza secret" className="city-image" />
               ))}
             </div>
           </div>
@@ -90,13 +81,13 @@ export default function HomePage() {
         canvas.height = window.innerHeight;
 
         const particles = [];
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 120; i++) {
           particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
             radius: Math.random() * 2 + 1,
-            dx: (Math.random() - 0.5) * 0.5,
-            dy: (Math.random() - 0.5) * 0.5
+            dx: (Math.random() - 0.5) * 0.8,
+            dy: (Math.random() - 0.5) * 0.8
           });
         }
 
@@ -110,7 +101,7 @@ export default function HomePage() {
 
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(255, 215, 0, 0.7)";
+            ctx.fillStyle = "rgba(255, 215, 0, 0.8)";
             ctx.fill();
           });
           requestAnimationFrame(animate);
