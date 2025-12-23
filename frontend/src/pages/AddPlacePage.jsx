@@ -1,63 +1,116 @@
-// pages/AddPlacePage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AddPlacePage.css";
 
 export default function AddPlacePage() {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null);
-  const [categories, setCategories] = useState([]);
 
-  // Load categories from API (mock here)
-  useEffect(() => {
-    setCategories(["Food", "Parks", "Museum", "Library"]);
-  }, []);
+  const [place, setPlace] = useState({
+    name: "",
+    category: "",
+    description: "",
+    image: null,
+  });
+
+  const [preview, setPreview] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setPlace({ ...place, image: file });
+    setPreview(URL.createObjectURL(file));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const newPlace = {
-      name,
-      category,
-      description,
-      image,
-      status: "pending", // sent to admin for approval
-    };
+    // later → POST to /api/admin/pending-places
+    console.log("Submitted to admin:", place);
 
-    console.log("Submitting new place:", newPlace);
-
-    alert("Place request sent to admin for approval!");
-    navigate("/explore");
+    setSubmitted(true);
   };
+
+  if (submitted) {
+    return (
+      <div className="add-place-container">
+        <div className="success-card">
+          <h1>Thank you for submitting your place ✨</h1>
+          <p>
+            Your request has been sent to our admin team for review.
+            Once approved, it will appear for everyone to explore.
+          </p>
+
+          <button
+            className="primary-btn"
+            onClick={() => navigate("/explore")}
+          >
+            Continue Exploring
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="add-place-container">
-      <h1>Add Your Own Place</h1>
-      <form onSubmit={handleSubmit}>
+      <form className="add-place-card" onSubmit={handleSubmit}>
+        <h1>Add Your Place</h1>
+        <p className="subtitle">
+          Share a hidden gem with the community
+        </p>
+
+        {/* IMAGE UPLOAD */}
+        <div className="image-upload">
+          {preview ? (
+            <img src={preview} alt="Preview" />
+          ) : (
+            <label className="upload-placeholder">
+              <span>📸 Upload a photo</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                hidden
+              />
+            </label>
+          )}
+        </div>
+
         <input
           type="text"
           placeholder="Place Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
           required
+          onChange={(e) =>
+            setPlace({ ...place, name: e.target.value })
+          }
         />
-        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+
+        <select
+          required
+          onChange={(e) =>
+            setPlace({ ...place, category: e.target.value })
+          }
+        >
           <option value="">Select Category</option>
-          {categories.map((c, i) => (
-            <option key={i} value={c}>{c}</option>
-          ))}
+          <option value="Food">Food</option>
+          <option value="Cafe">Cafe</option>
+          <option value="Museum">Museum</option>
+          <option value="Park">Park</option>
         </select>
+
         <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Why should people visit this place?"
           required
+          onChange={(e) =>
+            setPlace({ ...place, description: e.target.value })
+          }
         />
-        <input type="file" onChange={(e) => setImage(e.target.files[0])} required />
-        <button type="submit">Submit for Approval</button>
+
+        <button type="submit" className="primary-btn full">
+          Send to Admin
+        </button>
       </form>
     </div>
   );
