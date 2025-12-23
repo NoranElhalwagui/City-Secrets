@@ -27,7 +27,7 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(builder);
 
-        // Unique Constraints
+        // --- UNIQUE CONSTRAINTS ---
         builder.Entity<Favorite>()
             .HasIndex(f => new { f.UserId, f.PlaceId })
             .IsUnique();
@@ -48,7 +48,7 @@ public class AppDbContext : DbContext
             .HasIndex(u => u.Username)
             .IsUnique();
 
-        // Performance Indexes
+        // --- PERFORMANCE INDEXES ---
         builder.Entity<PlaceView>()
             .HasIndex(pv => new { pv.PlaceId, pv.ViewedAt });
 
@@ -72,6 +72,61 @@ public class AppDbContext : DbContext
 
         builder.Entity<PlaceImage>()
             .HasIndex(pi => new { pi.PlaceId, pi.IsPrimary, pi.DisplayOrder });
+
+        // --- FIX CASCADE DELETE ISSUES ---
+        builder.Entity<Review>()
+         .HasOne(r => r.Place)
+         .WithMany(p => p.Reviews)
+         .HasForeignKey(r => r.PlaceId)
+         .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Favorite>()
+            .HasOne(f => f.User)
+            .WithMany(u => u.Favorites)
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ReviewHelpfulness>()
+            .HasOne(rh => rh.User)
+            .WithMany(u => u.ReviewHelpfulness)
+            .HasForeignKey(rh => rh.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<UserPreference>()
+            .HasOne(up => up.User)
+            .WithOne(u => u.UserPreference)
+            .HasForeignKey<UserPreference>(up => up.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<SearchHistory>()
+            .HasOne(sh => sh.User)
+            .WithMany(u => u.SearchHistories)
+            .HasForeignKey(sh => sh.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Notification>()
+            .HasOne(n => n.User)
+            .WithMany(u => u.Notifications)
+            .HasForeignKey(n => n.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<RefreshToken>()
+            .HasOne(rt => rt.User)
+            .WithMany(u => u.RefreshTokens)
+            .HasForeignKey(rt => rt.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<LoginAttempt>()
+            .HasOne(la => la.User)
+            .WithMany(u => u.LoginAttempts)
+            .HasForeignKey(la => la.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<Place>()
+       .HasOne(p => p.Category)
+       .WithMany(c => c.Places)
+       .HasForeignKey(p => p.CategoryId)
+       .OnDelete(DeleteBehavior.Restrict);
     }
+
 }
 

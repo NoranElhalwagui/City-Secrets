@@ -80,5 +80,6 @@ namespace CitySecrets.Models{
         public ICollection<Notification>? Notifications { get; set; }
         public ICollection<RefreshToken>? RefreshTokens { get; set; }
         public UserPreference? UserPreference { get; set; }
+        public ICollection<LoginAttempt> LoginAttempts { get; set; } = new List<LoginAttempt>();
     }
 }

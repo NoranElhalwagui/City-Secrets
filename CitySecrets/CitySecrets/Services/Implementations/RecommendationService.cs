@@ -1,4 +1,4 @@
-using CitySecrets.Models;
+﻿using CitySecrets.Models;
 using CitySecrets.Services.Interfaces;
 using CitySecrets.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -22,18 +22,20 @@ namespace CitySecrets.Services.Implementations
         {
             // Get user preferences
             var userPreference = await _context.UserPreferences
-                .FirstOrDefaultAsync(up => up.UserId == userId);
+            .FirstOrDefaultAsync(up => up.UserId == userId)
+            ?? new UserPreference(); // ✅ fallback to prevent null dereference
+
 
             // Get user's favorite categories from their reviews and favorites
             var userCategories = await _context.Reviews
                 .Where(r => r.UserId == userId && r.Rating >= 4 && r.Place != null)
-                .Select(r => r.Place.CategoryId)
+                .Select(r => r.Place!.CategoryId)
                 .Distinct()
                 .ToListAsync();
 
             var favoriteCategoryIds = await _context.Favourites
                 .Where(f => f.UserId == userId && f.Place != null)
-                .Select(f => f.Place.CategoryId)
+                .Select(f => f.Place!.CategoryId)
                 .Distinct()
                 .ToListAsync();
 

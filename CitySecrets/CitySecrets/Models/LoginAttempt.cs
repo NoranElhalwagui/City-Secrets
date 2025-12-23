@@ -11,6 +11,10 @@ namespace CitySecrets.Models
         [Key]
         public int AttemptId { get; set; }
 
+        public int UserId { get; set; }
+        [Required]
+        [MaxLength(100)]
+        public User User { get; set; } = null!;
         // Email address that tried to login
         [Required]
         [MaxLength(100)]

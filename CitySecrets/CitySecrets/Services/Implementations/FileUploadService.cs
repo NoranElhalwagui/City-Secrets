@@ -35,13 +35,13 @@ namespace CitySecrets.Services
         public async Task<bool> DeleteImageAsync(string imageUrl)
         {
             if (!File.Exists(imageUrl)) return false;
-            File.Delete(imageUrl);
+
+            await Task.Run(() => File.Delete(imageUrl));
             return true;
         }
-
-        public async Task<bool> ValidateImageAsync(IFormFile file)
+        public Task<bool> ValidateImageAsync(IFormFile file)
         {
-            return file.Length > 0 && file.ContentType.StartsWith("image/");
+            return Task.FromResult(file.Length > 0 && file.ContentType.StartsWith("image/"));
         }
 
         public string GenerateUniqueFileName(string originalFileName)

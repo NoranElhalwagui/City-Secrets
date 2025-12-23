@@ -47,7 +47,7 @@ namespace CitySecrets.Services
                     CategoryName = p.Category!.Name,
                     CategoryId = p.CategoryId,
                     PriceRange = p.AveragePrice > 0 ? p.AveragePrice : null,
-                    AverageRating = p.Reviews!.Any() ? p.Reviews.Average(r => r.Rating) : 0,
+                    AverageRating = p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0,
                     ReviewCount = p.Reviews!.Count(),
                     Latitude = p.Latitude,
                     Longitude = p.Longitude,
