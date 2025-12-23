@@ -4,91 +4,179 @@
   min-height: 100vh;
   background: black;
   color: white;
-  padding: 50px;
+  padding: 40px 20px;
   font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+/* TITLE */
 .page-title {
-  font-size: 48px;
+  font-size: 42px;
   color: #ffae42;
   margin-bottom: 25px;
 }
 
-.search-box {
+/* TOP BUTTONS */
+.feed-actions,
+.explore-buttons {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 15px;
+  margin-bottom: 30px;
 }
 
-.search-box input,
-.search-box select {
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  flex: 1;
-}
-
-.search-box button {
-  background: gold;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+.primary-btn,
+.secondary-btn,
+.explore-btn {
+  padding: 12px 22px;
+  border-radius: 25px;
   font-weight: bold;
-  cursor: pointer;
-}
-
-.filters {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 25px;
-}
-
-.filters button {
-  background: rgba(255,255,255,0.1);
-  color: white;
   border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
   cursor: pointer;
   transition: 0.3s;
 }
 
-.filters button:hover {
+.primary-btn,
+.explore-btn {
   background: gold;
   color: black;
 }
 
-.places-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+.primary-btn:hover,
+.explore-btn:hover {
+  background: #ffcc66;
 }
 
-.place-card {
-  background: rgba(255,255,255,0.08);
-  border-radius: 15px;
+.secondary-btn {
+  background: transparent;
+  color: gold;
+  border: 2px solid gold;
+}
+
+.secondary-btn:hover {
+  background: gold;
+  color: black;
+}
+
+/* FEED CONTAINER */
+.feed {
+  width: 100%;
+  max-width: 650px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* POST CARD */
+.post-card,
+.feed-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
   padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   transition: 0.3s;
 }
 
-.place-card:hover {
-  transform: translateY(-5px);
-  background: rgba(255,255,255,0.12);
+.post-card:hover,
+.feed-card:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
-.place-card h3 {
+/* POST HEADER */
+.post-header {
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.post-header strong {
   color: gold;
-  margin-bottom: 8px;
 }
 
-.map-placeholder {
-  margin-top: 40px;
-  height: 200px;
-  border-radius: 15px;
-  background: rgba(255,255,255,0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* POST IMAGE */
+.post-image {
+  width: 100%;
+  max-height: 350px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin: 10px 0;
+}
+
+/* POST TEXT */
+.post-text,
+.opinion {
+  font-size: 15px;
+  margin: 10px 0;
+  line-height: 1.5;
+}
+
+/* POST ACTIONS */
+.post-actions {
+  margin-top: 10px;
+}
+
+.post-actions button {
+  background: transparent;
+  border: none;
   color: gold;
   font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.post-actions button:hover {
+  transform: scale(1.05);
+}
+
+/* COMMENTS */
+.comments {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.comment {
+  font-size: 14px;
+  margin-bottom: 6px;
+  opacity: 0.9;
+}
+
+/* ADD COMMENT */
+.add-comment {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.add-comment input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+}
+
+.add-comment button {
+  background: gold;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.add-comment button:hover {
+  background: #ffcc66;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .feed-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .feed {
+    padding: 0 10px;
+  }
 }

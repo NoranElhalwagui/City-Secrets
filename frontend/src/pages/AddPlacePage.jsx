@@ -1,63 +1,66 @@
-// pages/AddPlacePage.jsx
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import "./AddPlacePage.css";
 
 export default function AddPlacePage() {
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null);
-  const [categories, setCategories] = useState([]);
-
-  // Load categories from API (mock here)
-  useEffect(() => {
-    setCategories(["Food", "Parks", "Museum", "Library"]);
-  }, []);
+  const [place, setPlace] = useState({
+    name: "",
+    category: "",
+    description: "",
+    image: null,
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const newPlace = {
-      name,
-      category,
-      description,
-      image,
-      status: "pending", // sent to admin for approval
-    };
+    console.log("Submitted to admin:", place);
 
-    console.log("Submitting new place:", newPlace);
-
-    alert("Place request sent to admin for approval!");
-    navigate("/explore");
+    alert("Your place was sent to admin for verification ✅");
   };
 
   return (
     <div className="add-place-container">
       <h1>Add Your Own Place</h1>
-      <form onSubmit={handleSubmit}>
+
+      <form onSubmit={handleSubmit} className="add-place-form">
         <input
           type="text"
           placeholder="Place Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
           required
+          onChange={(e) =>
+            setPlace({ ...place, name: e.target.value })
+          }
         />
-        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+
+        <select
+          required
+          onChange={(e) =>
+            setPlace({ ...place, category: e.target.value })
+          }
+        >
           <option value="">Select Category</option>
-          {categories.map((c, i) => (
-            <option key={i} value={c}>{c}</option>
-          ))}
+          <option value="Food">Food</option>
+          <option value="Museum">Museum</option>
+          <option value="Cafe">Cafe</option>
         </select>
+
         <textarea
           placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
           required
+          onChange={(e) =>
+            setPlace({ ...place, description: e.target.value })
+          }
         />
-        <input type="file" onChange={(e) => setImage(e.target.files[0])} required />
-        <button type="submit">Submit for Approval</button>
+
+        <input
+          type="file"
+          onChange={(e) =>
+            setPlace({ ...place, image: e.target.files[0] })
+          }
+        />
+
+        <button type="submit" className="primary-btn">
+          Send to Admin
+        </button>
       </form>
     </div>
   );
