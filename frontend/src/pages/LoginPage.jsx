@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Telescope } from "lucide-react";
+import { login, register, forgotPassword } from "../services/authService";
 import "./LoginPage.css";
 
 export default function LoginPage() {
@@ -19,52 +20,94 @@ export default function LoginPage() {
   const [isReturning, setIsReturning] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const adminUser = { email: "Admin@gmail.com", password: "121212", name: "Admin" };
+  const [loading, setLoading] = useState(false);
 
-  const getUsers = () => JSON.parse(localStorage.getItem("users")) || [];
-  const saveUser = (user) => {
-    const users = getUsers();
-    users.push(user);
-    localStorage.setItem("users", JSON.stringify(users));
-  };
-  const findUserByEmail = (email) => getUsers().find((u) => u.email === email);
-
-  const handleLogin = (e) => {
+  // ================= LOGIN =================
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (email === adminUser.email && password === adminUser.password) {
-      setUserName(adminUser.name);
-      setIsAdmin(true);
-      setLoggedIn(true);
-      navigate("/admin/dashboard");
-      return;
-    }
-    const existingUser = findUserByEmail(email);
-    if (existingUser && existingUser.password === password) {
-      setUserName(existingUser.name);
+
+    if (loading) return;
+    setLoading(true);
+
+    try {
+      const result = await login(email, password);
+
+      if (!result.success) {
+        alert(result.message || "Login failed");
+        return;
+      }
+
+      localStorage.setItem("accessToken", result.accessToken);
+      localStorage.setItem("refreshToken", result.refreshToken);
+      localStorage.setItem("user", JSON.stringify(result.user));
+
+      setUserName(result.user.username);
+      setIsAdmin(result.user.isAdmin);
       setIsReturning(true);
       setLoggedIn(true);
-    } else {
-      alert("Invalid email or password!");
+
+      if (result.user.isAdmin) {
+        navigate("/admin/dashboard");
+      }
+    } catch (err) {
+      // If authService throws, show its message if there is one
+      alert(err?.message || "An unexpected error occurred during login");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRegister = (e) => {
+  // ================= REGISTER =================
+  const handleRegister = async (e) => {
     e.preventDefault();
-    if (findUserByEmail(email) || email === adminUser.email) {
-      alert("This email is already registered. Please log in.");
+
+    if (loading) return;
+    setLoading(true);
+
+    try {
+      const result = await register({
+        username: name,
+        fullName: name,
+        email,
+        password,
+      });
+
+      if (!result.success) {
+        alert(result.message || "Registration failed");
+        setMode("login");
+        return;
+      }
+
+      localStorage.setItem("accessToken", result.accessToken);
+      localStorage.setItem("refreshToken", result.refreshToken);
+      localStorage.setItem("user", JSON.stringify(result.user));
+
+      setUserName(result.user.username);
+      setIsReturning(false);
+      setLoggedIn(true);
+    } catch (err) {
+      alert(err?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ================= FORGOT PASSWORD =================
+  const handleReset = async (e) => {
+    e.preventDefault();
+
+    if (loading) return;
+    setLoading(true);
+
+    try {
+      await forgotPassword(resetEmail);
+      alert("If this email exists, a reset link has been sent.");
       setMode("login");
-      return;
+    } catch (err) {
+      alert(err?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
-    saveUser({ name, email, password });
-    setUserName(name);
-    setIsReturning(false);
-    setLoggedIn(true);
-  };
-
-  const handleReset = (e) => {
-    e.preventDefault();
-    alert(`Password reset link sent to ${resetEmail}`);
-    setMode("login");
   };
 
   const goToExplore = () => navigate("/explore");
@@ -83,30 +126,74 @@ export default function LoginPage() {
           <div className="login-box">
             {mode === "login" && (
               <>
-                <h2 className="encourage-line">Sign in and start your hidden journey</h2>
+                <h2 className="encourage-line">
+                  Sign in and start your hidden journey
+                </h2>
                 <form onSubmit={handleLogin}>
-                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                  <button type="submit">Login</button>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button type="submit" disabled={loading}>
+                    Login
+                  </button>
                 </form>
                 <div className="toggle-links">
-                  <span onClick={() => setMode("register")}>Don't have an account? Sign Up</span>
-                  <span onClick={() => setMode("forgot")}>Forgot password?</span>
+                  <span onClick={() => setMode("register")}>
+                    Don't have an account? Sign Up
+                  </span>
+                  <span onClick={() => setMode("forgot")}>
+                    Forgot password?
+                  </span>
                 </div>
               </>
             )}
 
             {mode === "register" && (
               <>
-                <h2 className="encourage-line">Join and start a journey full of new places</h2>
+                <h2 className="encourage-line">
+                  Join and start a journey full of new places
+                </h2>
                 <form onSubmit={handleRegister}>
-                  <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                  <button type="submit">Register</button>
+                  <input
+                    type="text"
+                    placeholder="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button type="submit" disabled={loading}>
+                    Register
+                  </button>
                 </form>
                 <div className="toggle-links">
-                  <span onClick={() => setMode("login")}>Already have an account? Sign in</span>
+                  <span onClick={() => setMode("login")}>
+                    Already have an account? Sign in
+                  </span>
                 </div>
               </>
             )}
@@ -114,22 +201,17 @@ export default function LoginPage() {
             {mode === "forgot" && (
               <>
                 <h2 className="encourage-line">Forgot your password?</h2>
-                <form onSubmit={() => setMode("reset")}>
-                  <input type="email" placeholder="Enter your email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} required />
-                  <button type="submit">Send Reset Link</button>
-                </form>
-                <div className="toggle-links">
-                  <span onClick={() => setMode("login")}>Back to Login</span>
-                </div>
-              </>
-            )}
-
-            {mode === "reset" && (
-              <>
-                <h2 className="encourage-line">Reset your password</h2>
                 <form onSubmit={handleReset}>
-                  <input type="password" placeholder="New password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                  <button type="submit">Reset Password</button>
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                  />
+                  <button type="submit" disabled={loading}>
+                    Send Reset Link
+                  </button>
                 </form>
                 <div className="toggle-links">
                   <span onClick={() => setMode("login")}>Back to Login</span>
@@ -147,9 +229,13 @@ export default function LoginPage() {
                 : `Welcome ${userName}! We are delighted to have you in our secret family`}
             </h2>
             {isAdmin ? (
-              <button className="start-btn" onClick={goToAdminDashboard}>Go to Admin Dashboard</button>
+              <button className="start-btn" onClick={goToAdminDashboard}>
+                Go to Admin Dashboard
+              </button>
             ) : (
-              <button className="start-btn" onClick={goToExplore}>Start to Explore</button>
+              <button className="start-btn" onClick={goToExplore}>
+                Start to Explore
+              </button>
             )}
           </div>
         )}
