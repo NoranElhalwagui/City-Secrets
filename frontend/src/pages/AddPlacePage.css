@@ -1,0 +1,122 @@
+/* pages/AddPlacePage.css */
+
+.add-place-container {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #111, #000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  font-family: Arial, sans-serif;
+}
+
+/* FORM CARD */
+.add-place-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(15px);
+  border-radius: 22px;
+  padding: 35px;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+}
+
+.add-place-card h1 {
+  color: gold;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.85;
+  margin-bottom: 10px;
+}
+
+/* IMAGE UPLOAD */
+.image-upload {
+  width: 100%;
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.image-upload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: gold;
+  cursor: pointer;
+  font-weight: bold;
+  border: 2px dashed rgba(255, 215, 0, 0.4);
+}
+
+/* INPUTS */
+.add-place-card input,
+.add-place-card select,
+.add-place-card textarea {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.add-place-card textarea {
+  min-height: 100px;
+  resize: none;
+}
+
+/* BUTTON */
+.primary-btn {
+  background: gold;
+  color: black;
+  border: none;
+  border-radius: 30px;
+  padding: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.primary-btn:hover {
+  background: #ffcc66;
+}
+
+.primary-btn.full {
+  margin-top: 10px;
+}
+
+/* SUCCESS STATE */
+.success-card {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 50px 40px;
+  border-radius: 25px;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+}
+
+.success-card h1 {
+  color: gold;
+  margin-bottom: 15px;
+}
+
+.success-card p {
+  font-size: 15px;
+  opacity: 0.9;
+  margin-bottom: 30px;
+}
