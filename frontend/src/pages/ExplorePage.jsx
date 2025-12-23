@@ -2,43 +2,44 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ExplorePage.css";
 
-export default function ExplorePage() {
+export default function ExplorePage({ posts, setPosts, currentUser }) {
   const navigate = useNavigate();
-
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      user: "Alice",
-      place: "Hidden Cafe",
-      image: "/demo/cafe.jpg",
-      opinion: "Amazing coffee and calm vibes ☕",
-      likes: 12,
-      comments: ["Love this place!", "Added to my list"],
-    },
-    {
-      id: 2,
-      user: "Bob",
-      place: "Secret Museum",
-      image: "/demo/museum.jpg",
-      opinion: "A real hidden gem!",
-      likes: 20,
-      comments: [],
-    },
-  ]);
-
   const [newComment, setNewComment] = useState("");
 
   const handleLike = (id) => {
     setPosts(
-      posts.map((p) =>
-        p.id === id ? { ...p, likes: p.likes + 1 } : p
-      )
+      posts.map((p) => {
+        if (p.id === id) {
+          if (p.likedBy.includes(currentUser)) return p;
+          return {
+            ...p,
+            likes: p.likes + 1,
+            likedBy: [...p.likedBy, currentUser],
+          };
+        }
+        return p;
+      })
+    );
+  };
+
+  const handleFavorite = (id) => {
+    setPosts(
+      posts.map((p) => {
+        if (p.id === id) {
+          if (p.favoritedBy.includes(currentUser)) return p;
+          return {
+            ...p,
+            favorites: p.favorites + 1,
+            favoritedBy: [...p.favoritedBy, currentUser],
+          };
+        }
+        return p;
+      })
     );
   };
 
   const handleAddComment = (id) => {
     if (!newComment.trim()) return;
-
     setPosts(
       posts.map((p) =>
         p.id === id
@@ -46,7 +47,6 @@ export default function ExplorePage() {
           : p
       )
     );
-
     setNewComment("");
   };
 
@@ -54,11 +54,10 @@ export default function ExplorePage() {
     <div className="explore-container">
       <h1 className="page-title">Explore Places</h1>
 
-      {/* TOP ACTION BUTTONS */}
       <div className="feed-actions">
         <button
           className="primary-btn"
-          onClick={() => alert("Create Post page comes next 😉")}
+          onClick={() => navigate("/create-post")}
         >
           Make Your Own Post
         </button>
@@ -71,7 +70,6 @@ export default function ExplorePage() {
         </button>
       </div>
 
-      {/* FEED */}
       <div className="feed">
         {posts.map((post) => (
           <div key={post.id} className="post-card">
@@ -80,23 +78,21 @@ export default function ExplorePage() {
               <strong>{post.place}</strong>
             </div>
 
-            {post.image && (
-              <img
-                src={post.image}
-                alt={post.place}
-                className="post-image"
-              />
-            )}
+            {post.images.map((img, i) => (
+              <img key={i} src={img} alt="Post" className="post-image" />
+            ))}
 
-            <p className="post-text">{post.opinion}</p>
+            <p className="post-text">{post.description}</p>
 
             <div className="post-actions">
+              <button onClick={() => handleFavorite(post.id)}>
+                ❤️ Favorite ({post.favorites})
+              </button>
               <button onClick={() => handleLike(post.id)}>
-                ❤️ Favorite ({post.likes})
+                👍 Like ({post.likes})
               </button>
             </div>
 
-            {/* COMMENTS */}
             <div className="comments">
               {post.comments.map((c, i) => (
                 <p key={i} className="comment">• {c}</p>
