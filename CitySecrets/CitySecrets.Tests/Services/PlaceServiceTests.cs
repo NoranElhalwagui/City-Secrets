@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -28,9 +28,9 @@ namespace CitySecrets.Tests.Services
         public async Task GetAllPlacesAsync_ShouldReturnOnlyActiveAndNotDeleted()
         {
             _context.Place.AddRange(
-                new Place { Name = "Active", IsActive = true, IsDeleted = false },
-                new Place { Name = "Deleted", IsActive = true, IsDeleted = true },
-                new Place { Name = "Inactive", IsActive = false, IsDeleted = false }
+                CreatePlace("Active", isActive: true, isDeleted: false),
+                CreatePlace("Deleted", isActive: true, isDeleted: true),
+                CreatePlace("Inactive", isActive: false, isDeleted: false)
             );
             await _context.SaveChangesAsync();
 
@@ -43,7 +43,7 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public async Task GetPlaceByIdAsync_ShouldIncreaseVisitCount()
         {
-            var place = new Place { Name = "Cafe", VisitCount = 0 };
+            var place = CreatePlace("Cafe");
             _context.Place.Add(place);
             await _context.SaveChangesAsync();
 
@@ -56,7 +56,7 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public async Task CreatePlaceAsync_ShouldCreatePlace()
         {
-            var place = new Place { Name = "New Place" };
+            var place = CreatePlace("New Place");
 
             var result = await _service.CreatePlaceAsync(place, userId: 2);
 
@@ -68,11 +68,11 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public async Task UpdatePlaceAsync_ExistingPlace_ShouldUpdateFields()
         {
-            var place = new Place { Name = "Old" };
+            var place = CreatePlace("Old");
             _context.Place.Add(place);
             await _context.SaveChangesAsync();
 
-            var updated = new Place { Name = "New Name", Address = "New Address" };
+            var updated = CreatePlace("New Name", address: "New Address");
 
             var result = await _service.UpdatePlaceAsync(place.PlaceId, updated, 2);
 
@@ -84,7 +84,7 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public async Task DeletePlaceAsync_NonAdmin_ShouldFail()
         {
-            var place = new Place();
+            var place = CreatePlace("ToDelete");
             _context.Place.Add(place);
             await _context.SaveChangesAsync();
 
@@ -96,7 +96,7 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public async Task DeletePlaceAsync_Admin_ShouldSoftDelete()
         {
-            var place = new Place();
+            var place = CreatePlace("ToDeleteAdmin");
             _context.Place.Add(place);
             await _context.SaveChangesAsync();
 
@@ -109,7 +109,7 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public async Task VerifyPlaceAsync_Admin_ShouldVerify()
         {
-            var place = new Place { IsVerified = false };
+            var place = CreatePlace("Verify", isVerified: false);
             _context.Place.Add(place);
             await _context.SaveChangesAsync();
 
@@ -122,7 +122,7 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public async Task SearchPlacesAsync_ShouldReturnMatchingResults()
         {
-            _context.Place.Add(new Place { Name = "Hidden Cafe", IsDeleted = false });
+            _context.Place.Add(CreatePlace("Hidden Cafe", isDeleted: false));
             await _context.SaveChangesAsync();
 
             var result = await _service.SearchPlacesAsync("Cafe");
@@ -133,14 +133,7 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public async Task GetNearbyPlacesAsync_ShouldReturnWithinRadius()
         {
-            _context.Place.Add(new Place
-            {
-                Name = "Near",
-                Latitude = 30.0,
-                Longitude = 31.0,
-                IsActive = true,
-                IsDeleted = false
-            });
+            _context.Place.Add(CreatePlace("Near", latitude: 30.0, longitude: 31.0, isActive: true, isDeleted: false));
 
             await _context.SaveChangesAsync();
 
@@ -153,8 +146,8 @@ namespace CitySecrets.Tests.Services
         public async Task GetPlacesByCategoryAsync_ShouldFilterCorrectly()
         {
             _context.Place.AddRange(
-                new Place { CategoryId = 1 },
-                new Place { CategoryId = 2 }
+                CreatePlace("Cat1", categoryId: 1),
+                CreatePlace("Cat2", categoryId: 2)
             );
             await _context.SaveChangesAsync();
 
@@ -166,12 +159,7 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public async Task RecalculatePlaceScoresAsync_ShouldUpdateScores()
         {
-            var place = new Place
-            {
-                VisitCount = 10,
-                TotalReviews = 5,
-                IsHiddenGem = true
-            };
+            var place = CreatePlace("Score", visitCount: 10, totalReviews: 5, isHiddenGem: true);
 
             _context.Place.Add(place);
             await _context.SaveChangesAsync();
@@ -186,6 +174,37 @@ namespace CitySecrets.Tests.Services
         public void Dispose()
         {
             _context.Dispose();
+        }
+
+        private static Place CreatePlace(
+            string name,
+            string? address = null,
+            string? description = null,
+            double latitude = 0,
+            double longitude = 0,
+            int categoryId = 1,
+            bool isActive = true,
+            bool isDeleted = false,
+            bool isVerified = true,
+            bool isHiddenGem = false,
+            int visitCount = 0,
+            int totalReviews = 0)
+        {
+            return new Place
+            {
+                Name = name,
+                Description = description ?? "Desc",
+                Address = address ?? "Addr",
+                Latitude = latitude,
+                Longitude = longitude,
+                CategoryId = categoryId,
+                IsActive = isActive,
+                IsDeleted = isDeleted,
+                IsVerified = isVerified,
+                IsHiddenGem = isHiddenGem,
+                VisitCount = visitCount,
+                TotalReviews = totalReviews
+            };
         }
     }
 }

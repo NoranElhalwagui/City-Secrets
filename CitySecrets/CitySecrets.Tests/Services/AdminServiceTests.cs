@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using FluentAssertions;
@@ -30,6 +30,11 @@ namespace CitySecrets.Tests.Services
             {
                 PlaceId = 1,
                 Name = "Test Place",
+                Description = "Seed description",
+                Address = "123 Test St",
+                Latitude = 0,
+                Longitude = 0,
+                CategoryId = 1,
                 IsActive = true,
                 IsDeleted = false
             });
@@ -38,12 +43,19 @@ namespace CitySecrets.Tests.Services
             {
                 UserId = 1,
                 Email = "test@test.com",
+                Username = "seed",
+                PasswordHash = "hash",
                 IsActive = true
             });
 
             _context.Reviews.Add(new Review
             {
                 ReviewId = 1,
+                PlaceId = 1,
+                UserId = 1,
+                Rating = 4,
+                Title = "Flagged",
+                Comment = "Flagged review",
                 IsFlagged = true,
                 IsApproved = false
             });
@@ -55,7 +67,15 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public void CreatePlace_ShouldCreateSuccessfully()
         {
-            var place = new Place { Name = "New Place" };
+            var place = new Place
+            {
+                Name = "New Place",
+                Description = "Desc",
+                Address = "Addr",
+                Latitude = 0,
+                Longitude = 0,
+                CategoryId = 1
+            };
 
             var result = _adminService.CreatePlace(place);
 
@@ -67,7 +87,15 @@ namespace CitySecrets.Tests.Services
         [Fact]
         public void UpdatePlace_ShouldUpdateName()
         {
-            var updated = new Place { Name = "Updated Name" };
+            var updated = new Place
+            {
+                Name = "Updated Name",
+                Description = "Desc",
+                Address = "Addr",
+                Latitude = 0,
+                Longitude = 0,
+                CategoryId = 1
+            };
 
             var result = _adminService.UpdatePlace(1, updated);
 

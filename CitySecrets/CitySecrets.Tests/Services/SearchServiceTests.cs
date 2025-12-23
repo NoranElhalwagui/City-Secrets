@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -49,9 +49,16 @@ namespace CitySecrets.Tests.Services
                 Latitude = 30.0,
                 Longitude = 31.0,
                 AveragePrice = 50,
-                Reviews = new()
+                Reviews = new System.Collections.Generic.List<Review>
                 {
-                    new Review { Rating = 4 }
+                    new Review
+                    {
+                        PlaceId = 1,
+                        UserId = 1,
+                        Rating = 4,
+                        Title = "Great",
+                        Comment = "Nice place"
+                    }
                 }
             };
 

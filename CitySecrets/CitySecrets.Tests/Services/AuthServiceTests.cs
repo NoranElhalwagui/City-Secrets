@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +25,7 @@ namespace CitySecrets.Tests.Services
             _context = new AppDbContext(options);
 
             var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string>
+                .AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     { "Jwt:Key", "TestSecretKeyThatIsLongEnough123456" },
                     { "Jwt:AccessTokenExpirationMinutes", "60" },
@@ -95,7 +95,9 @@ namespace CitySecrets.Tests.Services
             var request = new LoginRequest
             {
                 Email = "test@test.com",
-                Password = "wrongpass"
+                Password = "wrongpass",
+                IpAddress = "127.0.0.1",
+                UserAgent = "TestAgent"
             };
 
             var result = _authService.Login(request);
@@ -119,7 +121,9 @@ namespace CitySecrets.Tests.Services
             var request = new LoginRequest
             {
                 Email = "test@test.com",
-                Password = "password123"
+                Password = "password123",
+                IpAddress = "127.0.0.1",
+                UserAgent = "TestAgent"
             };
 
             var result = _authService.Login(request);
@@ -135,6 +139,8 @@ namespace CitySecrets.Tests.Services
             var user = new User
             {
                 Email = "test@test.com",
+                Username = "user",
+                PasswordHash = "hash",
                 EmailVerificationToken = "token123",
                 EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(1)
             };
@@ -153,6 +159,7 @@ namespace CitySecrets.Tests.Services
             var user = new User
             {
                 Email = "test@test.com",
+                Username = "user",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("oldpass"),
                 PasswordResetToken = "reset123",
                 PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1)
@@ -180,6 +187,8 @@ namespace CitySecrets.Tests.Services
         {
             var user = new User
             {
+                Email = "user@example.com",
+                Username = "user",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("oldpass")
             };
             _context.Users.Add(user);
