@@ -403,22 +403,25 @@ namespace CitySecrets.Services
         /// 📊 Tracks login attempts for security monitoring and rate limiting
         /// Helps detect brute force attacks
         /// </summary>
-        private void TrackLoginAttempt(string email, bool isSuccessful, string? failureReason, string? ipAddress, string? userAgent)
+        private void TrackLoginAttempt(string email, bool isSuccessful, string? failureReason, string ipAddress, string userAgent)
         {
+            // Try to find user, but it's OK if they don't exist
+            var user = _context.Users.FirstOrDefault(u => u.Email == email && !u.IsDeleted);
+
             var attempt = new LoginAttempt
             {
                 Email = email,
-                IpAddress = ipAddress ?? "Unknown",
                 IsSuccessful = isSuccessful,
                 FailureReason = failureReason,
+                IpAddress = ipAddress,
+                UserAgent = userAgent,
                 AttemptedAt = DateTime.UtcNow,
-                UserAgent = userAgent
+                UserId = user?.UserId      // <-- null if user not found, safe now
             };
 
             _context.LoginAttempts.Add(attempt);
             _context.SaveChanges();
         }
-
         /// <summary>
         /// 👤 Converts User model to UserDto (removes sensitive info like password)
         /// </summary>
