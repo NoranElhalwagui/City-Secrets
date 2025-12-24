@@ -1,4 +1,3 @@
-// pages/LoginPage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Telescope } from "lucide-react";
@@ -17,7 +16,6 @@ export default function LoginPage() {
   const [resetEmail, setResetEmail] = useState("");
 
   const [userName, setUserName] = useState("");
-  const [isReturning, setIsReturning] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -25,8 +23,8 @@ export default function LoginPage() {
   // ================= LOGIN =================
   const handleLogin = async (e) => {
     e.preventDefault();
-
     if (loading) return;
+
     setLoading(true);
 
     try {
@@ -37,20 +35,21 @@ export default function LoginPage() {
         return;
       }
 
+      // ✅ Save tokens
       localStorage.setItem("accessToken", result.accessToken);
       localStorage.setItem("refreshToken", result.refreshToken);
       localStorage.setItem("user", JSON.stringify(result.user));
 
-      setUserName(result.user.username);
-      setIsAdmin(result.user.isAdmin);
-      setIsReturning(true);
-      setLoggedIn(true);
+      setUserName(result.user?.username || "User");
 
-      if (result.user.isAdmin) {
-        navigate("/admin/dashboard");
-      }
+      /**
+       * ✅ IMPORTANT CHANGE
+       * We DO NOT guess admin from frontend flags
+       * We let backend decide access
+       */
+      navigate("/admin");
+      setLoggedIn(true);
     } catch (err) {
-      // If authService throws, show its message if there is one
       alert(err?.message || "An unexpected error occurred during login");
     } finally {
       setLoading(false);
@@ -60,8 +59,8 @@ export default function LoginPage() {
   // ================= REGISTER =================
   const handleRegister = async (e) => {
     e.preventDefault();
-
     if (loading) return;
+
     setLoading(true);
 
     try {
@@ -82,9 +81,10 @@ export default function LoginPage() {
       localStorage.setItem("refreshToken", result.refreshToken);
       localStorage.setItem("user", JSON.stringify(result.user));
 
-      setUserName(result.user.username);
-      setIsReturning(false);
+      setUserName(result.user?.username || "User");
       setLoggedIn(true);
+
+      navigate("/explore");
     } catch (err) {
       alert(err?.message || "Registration failed");
     } finally {
@@ -95,8 +95,8 @@ export default function LoginPage() {
   // ================= FORGOT PASSWORD =================
   const handleReset = async (e) => {
     e.preventDefault();
-
     if (loading) return;
+
     setLoading(true);
 
     try {
@@ -111,11 +111,12 @@ export default function LoginPage() {
   };
 
   const goToExplore = () => navigate("/explore");
-  const goToAdminDashboard = () => navigate("/admin/dashboard");
+  const goToAdminDashboard = () => navigate("/admin");
 
   return (
     <div className="loginpage-container">
       <canvas id="particle-bg-login" className="particle-bg-login"></canvas>
+
       <div className="loginpage-content">
         <div className="logo">
           <Telescope size={40} className="logo-icon" />
@@ -129,6 +130,7 @@ export default function LoginPage() {
                 <h2 className="encourage-line">
                   Sign in and start your hidden journey
                 </h2>
+
                 <form onSubmit={handleLogin}>
                   <input
                     type="email"
@@ -148,6 +150,7 @@ export default function LoginPage() {
                     Login
                   </button>
                 </form>
+
                 <div className="toggle-links">
                   <span onClick={() => setMode("register")}>
                     Don't have an account? Sign Up
@@ -164,6 +167,7 @@ export default function LoginPage() {
                 <h2 className="encourage-line">
                   Join and start a journey full of new places
                 </h2>
+
                 <form onSubmit={handleRegister}>
                   <input
                     type="text"
@@ -190,6 +194,7 @@ export default function LoginPage() {
                     Register
                   </button>
                 </form>
+
                 <div className="toggle-links">
                   <span onClick={() => setMode("login")}>
                     Already have an account? Sign in
@@ -201,6 +206,7 @@ export default function LoginPage() {
             {mode === "forgot" && (
               <>
                 <h2 className="encourage-line">Forgot your password?</h2>
+
                 <form onSubmit={handleReset}>
                   <input
                     type="email"
@@ -213,30 +219,22 @@ export default function LoginPage() {
                     Send Reset Link
                   </button>
                 </form>
+
                 <div className="toggle-links">
-                  <span onClick={() => setMode("login")}>Back to Login</span>
+                  <span onClick={() => setMode("login")}>
+                    Back to Login
+                  </span>
                 </div>
               </>
             )}
           </div>
         ) : (
           <div className="welcome-box">
-            <h2>
-              {isAdmin
-                ? "Welcome Admin! Access your Admin Dashboard below"
-                : isReturning
-                ? `Welcome back ${userName}! Continue your exploring journey`
-                : `Welcome ${userName}! We are delighted to have you in our secret family`}
-            </h2>
-            {isAdmin ? (
-              <button className="start-btn" onClick={goToAdminDashboard}>
-                Go to Admin Dashboard
-              </button>
-            ) : (
-              <button className="start-btn" onClick={goToExplore}>
-                Start to Explore
-              </button>
-            )}
+            <h2>Welcome {userName}!</h2>
+
+            <button className="start-btn" onClick={goToAdminDashboard}>
+              Continue
+            </button>
           </div>
         )}
       </div>
