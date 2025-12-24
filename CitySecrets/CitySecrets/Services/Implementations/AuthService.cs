@@ -407,7 +407,10 @@ namespace CitySecrets.Services
         {
             // Try to find user, but it's OK if they don't exist
             var user = _context.Users.FirstOrDefault(u => u.Email == email && !u.IsDeleted);
-
+            if (user == null && !isSuccessful)
+            {
+                return; // Don't track failed attempts for non-existent users
+            }
             var attempt = new LoginAttempt
             {
                 Email = email,
