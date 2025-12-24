@@ -107,6 +107,4 @@ Access Swagger UI at `https://localhost:7001/swagger` to test API endpoints inte
 
 Academic project - Nile University © 2024
 
----
 
-Built with ❤️ by the City Secrets Team
