@@ -43,11 +43,11 @@ namespace CitySecrets.Services
                 return new AuthResult { Success = false, Message = "Password must be at least 6 characters" };
 
             // Check if email already exists
-            if (_context.Users.Any(u => u.Email == request.Email))
+            if (_context.Users.Any(u => u.Email == request.Email && !u.IsDeleted))
                 return new AuthResult { Success = false, Message = "Email already exists" };
 
             // Check if username already exists
-            if (_context.Users.Any(u => u.Username == request.Username))
+            if (_context.Users.Any(u => u.Username == request.Username && !u.IsDeleted))
                 return new AuthResult { Success = false, Message = "Username already exists" };
 
             // 🔒 Hash password with BCrypt (super secure!)
@@ -90,6 +90,7 @@ namespace CitySecrets.Services
                 User = MapUserToDto(user)
             };
         }
+
 
         public AuthResult Login(LoginRequest request)
         {
@@ -423,6 +424,7 @@ namespace CitySecrets.Services
             };
 
             _context.LoginAttempts.Add(attempt);
+
             _context.SaveChanges();
         }
         /// <summary>
