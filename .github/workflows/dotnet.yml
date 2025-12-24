@@ -20,11 +20,10 @@ jobs:
         dotnet-version: '8.0.x'  # or 9.0 if you target net9.0
 
     - name: Restore dependencies
-      run: dotnet restore CitySecrets/CitySecrets.sln
+      run: dotnet restore Backend/CitySecrets.sln
 
     - name: Build
-      run: dotnet build CitySecrets/CitySecrets.sln --no-restore --configuration Release
+      run: dotnet build Backend/CitySecrets.sln --no-restore --configuration Release
 
     - name: Run tests
-      run: dotnet test CitySecrets/CitySecrets.Tests/CitySecrets.Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=test_results.trx"
-
+      run: dotnet test Backend/CitySecrets.Tests/CitySecrets.Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=test_results.trx"
