@@ -69,7 +69,7 @@ export default function App() {
         />
 
         <Route path="/add-place" element={<AddPlacePage />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );

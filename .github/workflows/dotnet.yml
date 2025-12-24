@@ -27,4 +27,3 @@ jobs:
 
     - name: Run tests
       run: dotnet test CitySecrets/CitySecrets.Tests/CitySecrets.Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=test_results.trx"
-

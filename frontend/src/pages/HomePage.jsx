@@ -29,7 +29,7 @@ export default function HomePage() {
 
           <h1 className="title">Discover Hidden Gems</h1>
           <p className="description">
-            Tired of the usual tourist spots? Dive into your city's secret corners, 
+            Tired of the usual tourist spots? Dive into your city's secret corners,
             uncover local treasures, and explore places that deserve the hype.
           </p>
 
@@ -44,6 +44,18 @@ export default function HomePage() {
             <Link to="/login">
               <button className="login-btn">
                 Login <span className="arrow">→</span>
+              </button>
+            </Link>
+            <Link to="/admin">
+              <button
+                className="login-btn"
+                style={{
+                  marginTop: "12px",
+                  backgroundColor: "#b91c1c",
+                  opacity: 0.85,
+                }}
+              >
+                DEV: Admin Dashboard
               </button>
             </Link>
           </div>
