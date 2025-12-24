@@ -1,122 +1,199 @@
-/* pages/AddPlacePage.css */
-
+/* CONTAINER */
 .add-place-container {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #111, #000);
+  background: radial-gradient(circle at top, #0a0a0a, #000); /* dark background */
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 40px;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 /* FORM CARD */
 .add-place-card {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.25); /* more transparent white */
   backdrop-filter: blur(15px);
-  border-radius: 22px;
-  padding: 35px;
+  border-radius: 25px;
+  padding: 50px 40px;
   width: 100%;
-  max-width: 420px;
+  max-width: 1000px; /* wider form */
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  gap: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  transition: 0.3s ease;
 }
 
+.add-place-card:hover {
+  transform: translateY(-5px);
+}
+
+/* HEADER */
 .add-place-card h1 {
   color: gold;
   text-align: center;
+  font-size: 28px;
 }
 
 .subtitle {
   text-align: center;
-  font-size: 14px;
-  opacity: 0.85;
-  margin-bottom: 10px;
-}
-
-/* IMAGE UPLOAD */
-.image-upload {
-  width: 100%;
-  height: 200px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.image-upload img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.upload-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: gold;
-  cursor: pointer;
-  font-weight: bold;
-  border: 2px dashed rgba(255, 215, 0, 0.4);
+  font-size: 16px;
+  opacity: 0.9;
+  margin-bottom: 15px;
+  color: gold; /* changed subtitle to gold */
 }
 
 /* INPUTS */
 .add-place-card input,
-.add-place-card select,
 .add-place-card textarea {
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: none;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 2px solid gold;
   outline: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: rgba(255, 255, 255, 1); /* solid white */
+  color: #333; /* readable dark text */
+  font-size: 14px;
+  transition: 0.3s;
 }
 
+.add-place-card input:focus,
+.add-place-card textarea:focus {
+  border-color: #ffd700;
+}
+
+/* SELECT BOXES */
+.add-place-card select {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 2px solid gold;
+  background: #fff8dc; /* light gold background */
+  color: #333; /* dark text */
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.add-place-card select:focus {
+  border-color: gold;
+}
+
+/* TEXTAREAS */
 .add-place-card textarea {
   min-height: 100px;
   resize: none;
 }
 
-/* BUTTON */
-.primary-btn {
-  background: gold;
-  color: black;
-  border: none;
-  border-radius: 30px;
-  padding: 12px;
-  font-weight: bold;
+/* IMAGE UPLOAD */
+.image-upload {
+  width: 100%;
+  min-height: 200px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.85); /* more transparent white */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  border: 2px solid gold;
   transition: 0.3s;
 }
 
+.image-upload:hover {
+  border-color: #ffd700;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: gold;
+  font-weight: bold;
+  text-align: center;
+  font-size: 14px;
+  padding: 20px;
+  border-radius: 18px;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.preview-grid img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s;
+}
+
+.preview-grid img:hover {
+  transform: scale(1.05);
+}
+
+/* BUTTONS */
+.primary-btn {
+  background: gold;
+  color: #333;
+  border: none;
+  border-radius: 30px;
+  padding: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
 .primary-btn:hover {
-  background: #ffcc66;
+  background: #ffd700;
 }
 
 .primary-btn.full {
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
-/* SUCCESS STATE */
+/* SUCCESS CARD */
 .success-card {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.85); /* more transparent white */
   padding: 50px 40px;
-  border-radius: 25px;
-  max-width: 420px;
+  border-radius: 28px;
+  max-width: 1000px;
   text-align: center;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+  box-shadow: 0 30px 70px rgba(0,0,0,0.25);
+  animation: fadeIn 0.5s ease;
 }
 
 .success-card h1 {
   color: gold;
+  font-size: 26px;
   margin-bottom: 15px;
 }
 
 .success-card p {
-  font-size: 15px;
+  font-size: 16px;
   opacity: 0.9;
   margin-bottom: 30px;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+/* WIDER FORM LAYOUT */
+.add-place-card.wide-form {
+  max-width: 1000px;
+  padding: 50px 50px;
+  gap: 20px;
+}
+
+.coord-inputs,
+.time-selects {
+  display: flex;
+  gap: 10px;
+}
+
+.coord-inputs input,
+.time-selects select {
+  flex: 1;
 }
