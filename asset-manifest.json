@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/City-Secrets/static/css/main.1d784fac.css",
+    "main.js": "/City-Secrets/static/js/main.e81a4bdf.js",
+    "static/js/453.20359781.chunk.js": "/City-Secrets/static/js/453.20359781.chunk.js",
+    "static/media/arkan.jpeg": "/City-Secrets/static/media/arkan.940f493b4d773604981a.jpeg",
+    "static/media/5A.jpeg": "/City-Secrets/static/media/5A.23421839c4e64b06118f.jpeg",
+    "static/media/giza.jpg": "/City-Secrets/static/media/giza.b5f0f6a8c92ec3067993.jpg",
+    "static/media/cairo.jpg": "/City-Secrets/static/media/cairo.e080150567f5f629da96.jpg",
+    "static/media/backg.jpg": "/City-Secrets/static/media/backg.6eecf33db301a77647e3.jpg",
+    "index.html": "/City-Secrets/index.html",
+    "main.1d784fac.css.map": "/City-Secrets/static/css/main.1d784fac.css.map",
+    "main.e81a4bdf.js.map": "/City-Secrets/static/js/main.e81a4bdf.js.map",
+    "453.20359781.chunk.js.map": "/City-Secrets/static/js/453.20359781.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1d784fac.css",
+    "static/js/main.e81a4bdf.js"
+  ]
+}
