@@ -9,6 +9,13 @@ using CitySecrets.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure for Railway deployment - listen on PORT environment variable
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5293";
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port));
+});
+
 // --- Services ---
 
 // Database - Use PostgreSQL for production (Railway), SQLite for local dev
@@ -169,41 +176,53 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// --- Database Seeding ---
-
+// --- Database Migration ---
+// Apply migrations on startup for Railway
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
-
-    if (!context.Users.Any())
+    try
     {
-        context.Users.AddRange(
-            new User
-            {
-                Username = "admin",
-                Email = "admin@test.com",
-                PasswordHash = "admin123",
-                FullName = "Admin User",
-                IsAdmin = true,
-                IsActive = true,
-                EmailVerified = true,
-                CreatedAt = DateTime.UtcNow
-            },
-            new User
-            {
-                Username = "user",
-                Email = "user@test.com",
-                PasswordHash = "user123",
-                FullName = "Regular User",
-                IsAdmin = false,
-                IsActive = true,
-                EmailVerified = true,
-                CreatedAt = DateTime.UtcNow
-            }
-        );
-        context.SaveChanges();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+        
+        // Seed data only if database is empty
+        if (!context.Users.Any())
+        {
+            context.Users.AddRange(
+                new User
+                {
+                    Username = "admin",
+                    Email = "admin@test.com",
+                    PasswordHash = "admin123",
+                    FullName = "Admin User",
+                    IsAdmin = true,
+                    IsActive = true,
+                    EmailVerified = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new User
+                {
+                    Username = "user",
+                    Email = "user@test.com",
+                    PasswordHash = "user123",
+                    FullName = "Regular User",
+                    IsAdmin = false,
+                    IsActive = true,
+                    EmailVerified = true,
+                    CreatedAt = DateTime.UtcNow
+                }
+            );
+            context.SaveChanges();
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Database migration error: {ex.Message}");
     }
 }
+
+var portForLog = Environment.GetEnvironmentVariable("PORT") ?? "5293";
+Console.WriteLine($"🚀 Server starting on port {portForLog}");
+Console.WriteLine($"📍 Swagger UI available at: http://localhost:{portForLog}/");
 
 app.Run();
