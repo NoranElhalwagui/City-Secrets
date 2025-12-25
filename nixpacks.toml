@@ -2,9 +2,10 @@
 nixPkgs = ["dotnet-sdk_8"]
 
 [phases.build]
+workdir = "CitySecrets"
 cmds = [
-    "cd CitySecrets && dotnet restore",
-    "cd CitySecrets && dotnet publish -c Release -o ../out"
+    "dotnet restore",
+    "dotnet publish -c Release -o ../out"
 ]
 
 [start]
