@@ -10,7 +10,7 @@ using CitySecrets.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure for Railway deployment - listen on PORT environment variable
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5293";
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.ListenAnyIP(int.Parse(port));
