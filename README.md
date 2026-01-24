@@ -1,25 +1,25 @@
-# 🏙️ City Secrets
+# City Secrets
 
 > Discover and share hidden gems in your city
 
 A community-driven platform where locals share their favorite spots and visitors discover authentic experiences beyond typical tourist destinations.
 
-## ✨ Features
+## Features
 
-- 🔍 Browse and search places by category and location
-- ⭐ Write reviews and rate places
-- 📍 Find nearby hidden gems with location-based search
-- 💝 Save favorite places
-- 🎯 Get personalized recommendations
-- 🛡️ Admin moderation tools
+- Browse and search places by category and location
+- Write reviews and rate places
+- Find nearby hidden gems with location-based search
+- Save favorite places
+- Get personalized recommendations
+- Admin moderation tools
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 **Backend:** ASP.NET Core 8.0, Entity Framework Core, SQL Server, JWT Authentication
 
 **Frontend:** React.js, Axios, React Router
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Backend Setup
 
@@ -63,7 +63,7 @@ A community-driven platform where locals share their favorite spots and visitors
    npm start
    ```
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 CitySecrets/
@@ -80,7 +80,7 @@ frontend/
 │   └── services/        # API calls
 ```
 
-## 🔐 Authentication
+## Authentication
 
 JWT-based authentication with:
 - Email verification
@@ -88,11 +88,11 @@ JWT-based authentication with:
 - Rate limiting (5 attempts per 15 minutes)
 - BCrypt password hashing
 
-## 🧪 Testing
+## Testing
 
 Access Swagger UI at `https://localhost:7001/swagger` to test API endpoints interactively.
 
-## 👥 Team
+## Team
 
 **Nile University - Software Engineering Course**
 
@@ -103,7 +103,7 @@ Access Swagger UI at `https://localhost:7001/swagger` to test API endpoints inte
 - Philopater Ayman
 
 
-## 📄 License
+##License
 
 Academic project - Nile University © 2024
 
