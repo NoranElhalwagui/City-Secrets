@@ -16,8 +16,6 @@ export default function LoginPage() {
   const [resetEmail, setResetEmail] = useState("");
 
   const [userName, setUserName] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
-
   const [loading, setLoading] = useState(false);
 
   // ================= LOGIN =================
@@ -28,6 +26,21 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // ================= ADMIN HARDCODED LOGIN =================
+      if (email === "admin@gmail.com" && password === "admin123") {
+        localStorage.setItem("isAdmin", "true");
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ username: "Admin", email })
+        );
+
+        setUserName("Admin");
+        setLoggedIn(true);
+        navigate("/admin");
+        return;
+      }
+
+      // ================= NORMAL USER LOGIN =================
       const result = await login(email, password);
 
       if (!result.success) {
@@ -35,20 +48,14 @@ export default function LoginPage() {
         return;
       }
 
-      // ✅ Save tokens
       localStorage.setItem("accessToken", result.accessToken);
       localStorage.setItem("refreshToken", result.refreshToken);
       localStorage.setItem("user", JSON.stringify(result.user));
+      localStorage.removeItem("isAdmin"); // ensure not admin
 
       setUserName(result.user?.username || "User");
-
-      /**
-       * ✅ IMPORTANT CHANGE
-       * We DO NOT guess admin from frontend flags
-       * We let backend decide access
-       */
-      navigate("/admin");
       setLoggedIn(true);
+      navigate("/explore");
     } catch (err) {
       alert(err?.message || "An unexpected error occurred during login");
     } finally {
@@ -83,7 +90,6 @@ export default function LoginPage() {
 
       setUserName(result.user?.username || "User");
       setLoggedIn(true);
-
       navigate("/explore");
     } catch (err) {
       alert(err?.message || "Registration failed");
@@ -109,9 +115,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
-  const goToExplore = () => navigate("/explore");
-  const goToAdminDashboard = () => navigate("/admin");
 
   return (
     <div className="loginpage-container">
@@ -231,10 +234,6 @@ export default function LoginPage() {
         ) : (
           <div className="welcome-box">
             <h2>Welcome {userName}!</h2>
-
-            <button className="start-btn" onClick={goToAdminDashboard}>
-              Continue
-            </button>
           </div>
         )}
       </div>
