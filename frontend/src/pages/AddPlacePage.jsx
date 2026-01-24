@@ -11,7 +11,7 @@ export default function AddPlacePage() {
     address: "",
     latitude: "",
     longitude: "",
-    categoryId: "",
+    category: "",
     averagePrice: "",
     priceRange: "",
     phoneNumber: "",
@@ -31,7 +31,7 @@ export default function AddPlacePage() {
     const files = Array.from(e.target.files);
     setPlace({ ...place, images: files });
 
-    const urls = files.map((f) => URL.createObjectURL(f));
+    const urls = files.map((file) => URL.createObjectURL(file));
     setPreviews(urls);
   };
 
@@ -43,7 +43,22 @@ export default function AddPlacePage() {
       return;
     }
 
-    console.log("Submitted to admin:", place);
+    const newPlace = {
+      ...place,
+      id: Date.now(), // fake unique ID
+      createdBy: "User",
+      status: "pending",
+      images: previews, // store image previews for admin view
+    };
+
+    const existingPending =
+      JSON.parse(localStorage.getItem("pendingPlaces")) || [];
+
+    localStorage.setItem(
+      "pendingPlaces",
+      JSON.stringify([...existingPending, newPlace])
+    );
+
     setSubmitted(true);
   };
 
@@ -71,27 +86,17 @@ export default function AddPlacePage() {
     <div className="add-place-container">
       <form className="add-place-card wide-form" onSubmit={handleSubmit}>
         <h1>Share Your Hidden Gem!</h1>
-        <p className="subtitle">
-          Inspire travelers and locals by adding your favorite place. 🌟
-        </p>
-        <p className="subtitle">
-          Your contribution helps the community discover amazing experiences!
-        </p>
 
         {/* LOCATION */}
         <select
-        required
-        onChange={(e) => setPlace({ ...place, location: e.target.value })}
-        defaultValue=""
+          required
+          defaultValue=""
+          onChange={(e) => setPlace({ ...place, location: e.target.value })}
         >
-        <option value="" disabled>
-         Select a Location
-        </option>
-        <option value="Cairo">Cairo</option>
-        <option value="Giza">Giza</option>
+          <option value="" disabled>Select a Location</option>
+          <option value="Cairo">Cairo</option>
+          <option value="Giza">Giza</option>
         </select>
-
-        
 
         {/* IMAGE UPLOAD */}
         <div className="image-upload">
@@ -122,11 +127,13 @@ export default function AddPlacePage() {
           required
           onChange={(e) => setPlace({ ...place, name: e.target.value })}
         />
+
         <textarea
           placeholder="Description"
           required
           onChange={(e) => setPlace({ ...place, description: e.target.value })}
         />
+
         <input
           type="text"
           placeholder="Address"
@@ -139,98 +146,80 @@ export default function AddPlacePage() {
           <input
             type="number"
             placeholder="Latitude"
-            step="0.000001"
             required
             onChange={(e) => setPlace({ ...place, latitude: e.target.value })}
           />
           <input
             type="number"
             placeholder="Longitude"
-            step="0.000001"
             required
             onChange={(e) => setPlace({ ...place, longitude: e.target.value })}
           />
         </div>
 
-        {/* CATEGORY AND PRICES */}
+        {/* CATEGORY */}
         <select
-        required
-        onChange={(e) => setPlace({ ...place, category: e.target.value })}
-        defaultValue=""
+          required
+          defaultValue=""
+          onChange={(e) => setPlace({ ...place, category: e.target.value })}
         >
-        <option value="" disabled>
-         Select a Category
-        </option>
-        <option value="Restaurant">Restaurant</option>
-        <option value="Cafe">Cafe</option>
-        <option value="Park">Park</option>
-        <option value="Museum">Museum</option>
-        <option value="Shop">Shop</option>
+          <option value="" disabled>Select a Category</option>
+          <option value="Restaurant">Restaurant</option>
+          <option value="Cafe">Cafe</option>
+          <option value="Park">Park</option>
+          <option value="Museum">Museum</option>
+          <option value="Shop">Shop</option>
         </select>
 
+        {/* PRICING */}
         <input
           type="number"
           placeholder="Average Price"
           required
           onChange={(e) => setPlace({ ...place, averagePrice: e.target.value })}
         />
+
         <input
           type="text"
           placeholder="Price Range"
           onChange={(e) => setPlace({ ...place, priceRange: e.target.value })}
         />
 
-        {/* CONTACT INFO */}
+        {/* CONTACT */}
         <input
           type="text"
           placeholder="Phone Number"
           onChange={(e) => setPlace({ ...place, phoneNumber: e.target.value })}
         />
+
         <input
           type="email"
           placeholder="Email"
           onChange={(e) => setPlace({ ...place, email: e.target.value })}
         />
+
         <input
           type="text"
           placeholder="Website"
           onChange={(e) => setPlace({ ...place, website: e.target.value })}
         />
 
-        {/* OPENING/CLOSING TIME */}
+        {/* TIME */}
         <div className="time-selects">
-          <select
+          <input
+            type="time"
             required
-            onChange={(e) =>
-              setPlace({ ...place, openingTime: e.target.value })
-            }
-          >
-            <option value="">Opening Time</option>
-            {Array.from({ length: 24 * 2 }).map((_, i) => {
-              const hour = Math.floor(i / 2);
-              const minute = i % 2 === 0 ? "00" : "30";
-              const time = `${hour.toString().padStart(2, "0")}:${minute}`;
-              return <option key={i} value={time}>{time}</option>;
-            })}
-          </select>
-          <select
+            onChange={(e) => setPlace({ ...place, openingTime: e.target.value })}
+          />
+          <input
+            type="time"
             required
-            onChange={(e) =>
-              setPlace({ ...place, closingTime: e.target.value })
-            }
-          >
-            <option value="">Closing Time</option>
-            {Array.from({ length: 24 * 2 }).map((_, i) => {
-              const hour = Math.floor(i / 2);
-              const minute = i % 2 === 0 ? "00" : "30";
-              const time = `${hour.toString().padStart(2, "0")}:${minute}`;
-              return <option key={i} value={time}>{time}</option>;
-            })}
-          </select>
+            onChange={(e) => setPlace({ ...place, closingTime: e.target.value })}
+          />
         </div>
 
         <textarea
-          placeholder="Additional Details (tips, rules, accessibility...)"
+          placeholder="Additional Details"
           onChange={(e) => setPlace({ ...place, details: e.target.value })}
         />
 

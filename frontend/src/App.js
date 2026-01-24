@@ -7,10 +7,10 @@ import ProfilePage from "./pages/ProfilePage";
 import ExplorePage from "./pages/ExplorePage";
 import AddPlacePage from "./pages/AddPlacePage";
 import AdminDashboard from "./pages/AdminDashboard";
+import PendingPlacesPage from "./pages/PendingPlacesPage";
 import CreatePostPage from "./pages/CreatePostPage";
 
 export default function App() {
-  // posts state lifted to App so ExplorePage & CreatePostPage share it
   const [posts, setPosts] = useState([
     {
       id: 1,
@@ -38,7 +38,7 @@ export default function App() {
     },
   ]);
 
-  const currentUser = "You"; // simulate logged-in user
+  const currentUser = "You";
 
   return (
     <Router>
@@ -69,7 +69,13 @@ export default function App() {
         />
 
         <Route path="/add-place" element={<AddPlacePage />} />
+
+        {/* ADMIN ROUTES */}
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route
+          path="/admin/pending-places"
+          element={<PendingPlacesPage />}
+        />
       </Routes>
     </Router>
   );

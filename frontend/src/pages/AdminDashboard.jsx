@@ -1,35 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
-  const [pendingPlaces, setPendingPlaces] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
+  const [stats, setStats] = useState({
+    users: 0,
+    places: 0,
+    reviews: 0,
+    pending: 0,
+  });
 
-  const fetchPendingPlaces = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        "https://localhost:5001/api/admin/pending-places",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  useEffect(() => {
+    const pendingPlaces =
+      JSON.parse(localStorage.getItem("pendingPlaces")) || [];
+    const approvedPlaces =
+      JSON.parse(localStorage.getItem("approvedPlaces")) || [];
 
-      if (!res.ok) throw new Error("Unauthorized");
-
-      const data = await res.json();
-      setPendingPlaces(data);
-    } catch (err) {
-      alert("Failed to load pending places");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setStats({
+      users: 120, // mock number
+      places: approvedPlaces.length,
+      reviews: 300, // mock number
+      pending: pendingPlaces.length,
+    });
+  }, []);
 
   return (
     <div className="admin-container">
@@ -39,11 +34,10 @@ export default function AdminDashboard() {
       <section className="dashboard-stats">
         <h2>Dashboard Stats</h2>
         <div className="stats">
-          <div className="stat-card">Users: 120</div>
-          <div className="stat-card">Places: 45</div>
-          <div className="stat-card">Reviews: 300</div>
-          <div className="stat-card">Analytics: View</div>
-          <div className="stat-card">Logs: View</div>
+          <div className="stat-card">Users: {stats.users}</div>
+          <div className="stat-card">Approved Places: {stats.places}</div>
+          <div className="stat-card">Pending Places: {stats.pending}</div>
+          <div className="stat-card">Reviews: {stats.reviews}</div>
         </div>
       </section>
 
@@ -51,49 +45,41 @@ export default function AdminDashboard() {
       <section className="places-management">
         <h2>Places Management</h2>
         <div className="admin-actions">
-          <button onClick={fetchPendingPlaces}>
+          <button
+            onClick={() => navigate("/admin/pending-places")}
+          >
             View Pending Places
           </button>
-          <button>Verify/Approve Place</button>
-        </div>
 
-        {/* PENDING PLACES LIST */}
-        {loading && <p>Loading pending places...</p>}
-
-        {pendingPlaces.map((place) => (
-          <div
-            key={place.id}
-            className="stat-card"
-            style={{ marginTop: "15px" }}
+          <button
+            onClick={() => navigate("/explore")}
           >
-            <h3>{place.name}</h3>
-            <p>{place.description}</p>
-            <p>
-              <strong>Submitted by:</strong> {place.createdBy}
-            </p>
-          </div>
-        ))}
+            View Approved Places
+          </button>
+        </div>
       </section>
 
       {/* USER MANAGEMENT */}
       <section className="user-management">
         <h2>User Management</h2>
         <div className="admin-actions">
-          <button>Ban User</button>
-          <button>Unban User</button>
+          <button disabled>Ban User</button>
+          <button disabled>Unban User</button>
         </div>
+        
       </section>
 
       {/* CATEGORIES MANAGEMENT */}
       <section className="categories-management">
         <h2>Categories Management</h2>
         <div className="admin-actions">
-          <button>List Categories</button>
-          <button>Add Category</button>
-          <button>Edit Category</button>
-          <button>Delete Category</button>
-          <button>Manage Subcategories</button>
+          <button disabled>List Categories</button>
+          <button disabled>Add Category</button>
+          <button disabled>Edit Category</button>
+          <button disabled>Delete Category</button>
+          <button disabled>Manage Subcategories</button>
         </div>
+        
       </section>
     </div>
   );
