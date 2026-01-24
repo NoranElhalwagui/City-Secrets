@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using CitySecrets.Models;
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -151,7 +152,7 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // --- Middleware ---
-
+app.UseCors("AllowFrontend");
 // Always enable Swagger for easy API testing
 app.UseSwagger();
 app.UseSwaggerUI(c =>
