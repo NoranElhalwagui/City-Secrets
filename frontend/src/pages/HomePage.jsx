@@ -55,7 +55,18 @@ export default function HomePage() {
                 Login <span className="arrow">→</span>
               </button>
             </Link>
-            
+                <Link to="/admin">
+              <button
+              className="login-btn"
+              style={{
+             marginTop: "12px",
+             backgroundColor: "#b91c1c",
+             opacity: 0.85,
+                }}
+              >
+               Admin Dashboard
+                 </button>
+                </Link>
           </div>
         </div>
 
