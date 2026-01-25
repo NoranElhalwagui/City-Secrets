@@ -4,16 +4,25 @@ import { Link } from "react-router-dom";
 import { Telescope } from "lucide-react";
 import "./HomePage.css";
 
-import cairo1 from "../assets/cairo.jpg";
-import cairo2 from "../assets/backg.jpg";
-import cairo3 from "../assets/giza.jpg";
-import giza1 from "../assets/giza.jpg";
-import giza2 from "../assets/backg.jpg";
-import giza3 from "../assets/cairo.jpg";
+// Cairo images (6)
+import cairo1 from "../assets/pic1.jpg";
+import cairo2 from "../assets/arkan.jpeg";
+import cairo3 from "../assets/pic4.jpg";
+import cairo4 from "../assets/pic5.jpg";
+import cairo5 from "../assets/pic6.jpg";
+import cairo6 from "../assets/cairo.jpg";
+
+// Giza images (6)
+import giza1 from "../assets/pic7.jpg";
+import giza2 from "../assets/pic8.jpg";
+import giza3 from "../assets/backg.jpg"; 
+import giza4 from "../assets/pic3.jpg";
+import giza5 from "../assets/pic4.jpg";
+import giza6 from "../assets/giza.jpg";
 
 export default function HomePage() {
-  const cairoImages = [cairo1, cairo2, cairo3, cairo1, cairo2, cairo3];
-  const gizaImages = [giza1, giza2, giza3, giza1, giza2, giza3];
+  const cairoImages = [cairo1, cairo2, cairo3, cairo4, cairo5, cairo6];
+  const gizaImages = [giza1, giza2, giza3, giza4, giza5, giza6];
 
   return (
     <div className="homepage-container">
@@ -46,18 +55,7 @@ export default function HomePage() {
                 Login <span className="arrow">→</span>
               </button>
             </Link>
-            <Link to="/admin">
-              <button
-                className="login-btn"
-                style={{
-                  marginTop: "12px",
-                  backgroundColor: "#b91c1c",
-                  opacity: 0.85,
-                }}
-              >
-                DEV: Admin Dashboard
-              </button>
-            </Link>
+            
           </div>
         </div>
 
