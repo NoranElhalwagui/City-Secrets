@@ -1,47 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ExplorePage.css";
 
 export default function ExplorePage({ posts, setPosts, currentUser }) {
   const navigate = useNavigate();
-  const [newComment, setNewComment] = useState("");
-  const [showApproved, setShowApproved] = useState(false);
 
-  // Like handler
+  const [approvedPlaces, setApprovedPlaces] = useState([]);
+  const [newComment, setNewComment] = useState("");
+
+  /* ================= LOAD APPROVED PLACES ================= */
+  useEffect(() => {
+    const approved =
+      JSON.parse(localStorage.getItem("approvedPlaces")) || [];
+    setApprovedPlaces(approved);
+  }, []);
+
+  /* ================= POST INTERACTIONS ================= */
   const handleLike = (id) => {
     setPosts(
-      posts.map((p) => {
-        if (p.id === id) {
-          if (p.likedBy.includes(currentUser)) return p;
-          return {
-            ...p,
-            likes: p.likes + 1,
-            likedBy: [...p.likedBy, currentUser],
-          };
-        }
-        return p;
-      })
+      posts.map((p) =>
+        p.id === id && !p.likedBy.includes(currentUser)
+          ? {
+              ...p,
+              likes: p.likes + 1,
+              likedBy: [...p.likedBy, currentUser],
+            }
+          : p
+      )
     );
   };
 
-  // Favorite handler
   const handleFavorite = (id) => {
     setPosts(
-      posts.map((p) => {
-        if (p.id === id) {
-          if (p.favoritedBy.includes(currentUser)) return p;
-          return {
-            ...p,
-            favorites: p.favorites + 1,
-            favoritedBy: [...p.favoritedBy, currentUser],
-          };
-        }
-        return p;
-      })
+      posts.map((p) =>
+        p.id === id && !p.favoritedBy.includes(currentUser)
+          ? {
+              ...p,
+              favorites: p.favorites + 1,
+              favoritedBy: [...p.favoritedBy, currentUser],
+            }
+          : p
+      )
     );
   };
 
-  // Add comment handler
   const handleAddComment = (id) => {
     if (!newComment.trim()) return;
     setPosts(
@@ -54,40 +56,44 @@ export default function ExplorePage({ posts, setPosts, currentUser }) {
     setNewComment("");
   };
 
-  // Filter posts for approved toggle
-  const filteredPosts = showApproved
-    ? posts.filter((p) => p.approved)
-    : posts;
-
   return (
     <div className="explore-container">
       <h1 className="page-title">Explore Places</h1>
 
       <div className="feed-actions">
-        <button
-          className="primary-btn"
-          onClick={() => navigate("/create-post")}
-        >
+        <button className="primary-btn" onClick={() => navigate("/create-post")}>
           Make Your Own Post
         </button>
 
-        <button
-          className="secondary-btn"
-          onClick={() => navigate("/add-place")}
-        >
+        <button className="secondary-btn" onClick={() => navigate("/add-place")}>
           Add Your Own Place
-        </button>
-
-        <button
-          className="explore-btn"
-          onClick={() => setShowApproved(!showApproved)}
-        >
-          {showApproved ? "Show All Posts" : "Explore Places"}
         </button>
       </div>
 
+      {/* ================= APPROVED PLACES ================= */}
+      <h2 className="section-title">Places</h2>
+
+      {approvedPlaces.length === 0 && (
+        <p className="empty-text">No places yet 🌍</p>
+      )}
+
+      <div className="places-grid">
+        {approvedPlaces.map((place) => (
+          <div key={place.id} className="place-card">
+            <h3>{place.name}</h3>
+            <p>{place.description}</p>
+            <p>
+              <strong>Location:</strong> {place.location}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* ================= POSTS ================= */}
+      <h2 className="section-title">Community Posts</h2>
+
       <div className="feed">
-        {filteredPosts.map((post) => (
+        {posts.map((post) => (
           <div key={post.id} className="post-card">
             <div className="post-header">
               <strong>{post.user}</strong> reviewed{" "}
