@@ -5,7 +5,9 @@ import "./ExplorePage.css";
 export default function ExplorePage({ posts, setPosts, currentUser }) {
   const navigate = useNavigate();
   const [newComment, setNewComment] = useState("");
+  const [showApproved, setShowApproved] = useState(false);
 
+  // Like handler
   const handleLike = (id) => {
     setPosts(
       posts.map((p) => {
@@ -22,6 +24,7 @@ export default function ExplorePage({ posts, setPosts, currentUser }) {
     );
   };
 
+  // Favorite handler
   const handleFavorite = (id) => {
     setPosts(
       posts.map((p) => {
@@ -38,6 +41,7 @@ export default function ExplorePage({ posts, setPosts, currentUser }) {
     );
   };
 
+  // Add comment handler
   const handleAddComment = (id) => {
     if (!newComment.trim()) return;
     setPosts(
@@ -49,6 +53,11 @@ export default function ExplorePage({ posts, setPosts, currentUser }) {
     );
     setNewComment("");
   };
+
+  // Filter posts for approved toggle
+  const filteredPosts = showApproved
+    ? posts.filter((p) => p.approved)
+    : posts;
 
   return (
     <div className="explore-container">
@@ -68,10 +77,17 @@ export default function ExplorePage({ posts, setPosts, currentUser }) {
         >
           Add Your Own Place
         </button>
+
+        <button
+          className="explore-btn"
+          onClick={() => setShowApproved(!showApproved)}
+        >
+          {showApproved ? "Show All Posts" : "Explore Approved Places"}
+        </button>
       </div>
 
       <div className="feed">
-        {posts.map((post) => (
+        {filteredPosts.map((post) => (
           <div key={post.id} className="post-card">
             <div className="post-header">
               <strong>{post.user}</strong> reviewed{" "}

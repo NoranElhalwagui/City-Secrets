@@ -180,3 +180,19 @@
     padding: 0 10px;
   }
 }
+
+/* Button for exploring approved posts */
+.explore-btn {
+  padding: 12px 22px;
+  border-radius: 25px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+  background: gold;
+  color: black;
+}
+
+.explore-btn:hover {
+  background: #ffcc66;
+}
