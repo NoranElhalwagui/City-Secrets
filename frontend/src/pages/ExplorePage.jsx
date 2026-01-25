@@ -82,7 +82,7 @@ export default function ExplorePage({ posts, setPosts, currentUser }) {
           className="explore-btn"
           onClick={() => setShowApproved(!showApproved)}
         >
-          {showApproved ? "Show All Posts" : "Explore Approved Places"}
+          {showApproved ? "Show All Posts" : "Explore Places"}
         </button>
       </div>
 

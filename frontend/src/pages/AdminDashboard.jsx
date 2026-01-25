@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,41 +9,50 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-
+import { Bar } from "react-chartjs-2";
 import "./AdminDashboard.css";
 
-// Register chart.js components
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     places: 0,
     pending: 0,
   });
 
-  const [approvedPlaces, setApprovedPlaces] = useState([]);
-
   useEffect(() => {
-    const pending = JSON.parse(localStorage.getItem("pendingPlaces")) || [];
-    const approved = JSON.parse(localStorage.getItem("approvedPlaces")) || [];
-
-    setApprovedPlaces(approved);
+    const pendingPlaces =
+      JSON.parse(localStorage.getItem("pendingPlaces")) || [];
+    const approvedPlaces =
+      JSON.parse(localStorage.getItem("approvedPlaces")) || [];
 
     setStats({
-      places: approved.length,
-      pending: pending.length,
+      places: approvedPlaces.length,
+      pending: pendingPlaces.length,
     });
   }, []);
 
-  // Data for the chart
+  /* ================= ANALYSIS DATA ================= */
   const chartData = {
-    labels: approvedPlaces.map((p) => p.name),
+    labels: ["Approved Places", "Pending Places"],
     datasets: [
       {
-        label: "Approved Places",
-        data: approvedPlaces.map(() => 1), // count each place as 1
-        backgroundColor: "rgba(255, 215, 0, 0.7)",
+        label: "Places Overview",
+        data: [stats.places, stats.pending],
+        backgroundColor: [
+          "rgba(255, 215, 0, 0.85)", // gold
+          "rgba(255, 255, 255, 0.5)", // light
+        ],
+        borderRadius: 10,
       },
     ],
   };
@@ -53,14 +61,18 @@ export default function AdminDashboard() {
     responsive: true,
     plugins: {
       legend: {
-        display: false,
+        labels: {
+          color: "white",
+          font: { size: 14 },
+        },
       },
       title: {
         display: true,
-        text: "Approved Places Analysis",
+        text: "Approved vs Pending Places",
         color: "#ffd700",
         font: {
           size: 22,
+          weight: "bold",
         },
       },
     },
@@ -80,7 +92,7 @@ export default function AdminDashboard() {
           color: "white",
         },
         grid: {
-          color: "rgba(255,255,255,0.2)",
+          display: false,
         },
       },
     },
@@ -88,40 +100,37 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-container">
+      {/* TITLE */}
       <h1 className="page-title">Admin Dashboard</h1>
 
-      {/* DASHBOARD STATS */}
-      <section className="dashboard-stats">
-        <h2>Dashboard Stats</h2>
+      {/* STATS */}
+      <section>
         <div className="stats">
           <div className="stat-card">Approved Places: {stats.places}</div>
           <div className="stat-card">Pending Places: {stats.pending}</div>
         </div>
       </section>
 
-      {/* PLACES MANAGEMENT */}
-      <section className="places-management">
+      {/* ANALYSIS */}
+      <section className="analysis-section">
+        <h2>Analysis</h2>
+        <div className="analysis-box">
+          <Bar data={chartData} options={chartOptions} />
+        </div>
+      </section>
+
+      {/* PLACE MANAGEMENT */}
+      <section>
         <h2>Places Management</h2>
         <div className="admin-actions">
           <button onClick={() => navigate("/admin/pending-places")}>
             View Pending Places
           </button>
+
           <button onClick={() => navigate("/explore")}>
             View Approved Places
           </button>
         </div>
-      </section>
-
-      {/* ANALYSIS */}
-      <section className="analysis-section">
-        <h2>Analysis</h2>
-        {approvedPlaces.length === 0 ? (
-          <p>No approved places yet.</p>
-        ) : (
-          <div className="analysis-cards">
-            <Bar data={chartData} options={chartOptions} />
-          </div>
-        )}
       </section>
     </div>
   );
